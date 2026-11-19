@@ -1,10 +1,8 @@
 # MSc-Data-Science-Capstone-Project-Natural-Language-Interface-to-Databases-Using-LLMs
-# Interactive NL2SQL with a Multi-Agent Human-in-the-Loop Framework
 
 An error-correction framework for text-to-SQL that decides, at run time and
 **without a gold query**, whether to **repair** an error automatically, **ask**
-the user, or **abstain** — and when it asks, the user chooses among **answer
-tables**, never SQL.
+the user, or **abstain** — and when it asks, the user chooses among correct SQL options provided.
 
 > MSc Capstone Project · Nanyang Technological University (CCDS)
 > Supervisor: Prof. Wang Qichen
