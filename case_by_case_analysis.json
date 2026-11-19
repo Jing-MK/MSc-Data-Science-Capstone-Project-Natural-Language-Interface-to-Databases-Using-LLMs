@@ -1,0 +1,27 @@
+[
+  {
+    "qid": "0",
+    "error": "单位转换错误 - 不应该乘100",
+    "category": "CALCULATION_ERROR"
+  },
+  {
+    "qid": "1",
+    "error": "列名错误和值不匹配",
+    "category": "COLUMN_VALUE_ERROR"
+  },
+  {
+    "qid": "15",
+    "error": "错误使用了GROUP BY和AVG聚合",
+    "category": "AGGREGATION_ERROR"
+  },
+  {
+    "qid": "16",
+    "error": "Gold SQL可能有错 - 县名不一致",
+    "category": "GOLD_SQL_ERROR"
+  },
+  {
+    "qid": "22",
+    "error": "不必要的JOIN导致数据丢失",
+    "category": "JOIN_ERROR"
+  }
+]

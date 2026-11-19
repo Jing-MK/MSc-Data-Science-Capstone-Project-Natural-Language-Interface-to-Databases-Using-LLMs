@@ -1,0 +1,2291 @@
+[
+  {
+    "db_id": "california_schools",
+    "question": "What is the highest eligible free rate for K-12 students in the schools in Alameda County?",
+    "evidence": "Eligible free rate for K-12 = `Free Meal Count (K-12)` / `Enrollment (K-12)`",
+    "predicted_sql": "SELECT MAX(CAST(\"Free Meal Count (K-12)\" AS REAL) * 100.0 / \"Enrollment (K-12)\") FROM frpm WHERE \"County Name\" = 'Alameda'",
+    "gold_sql": "SELECT `Free Meal Count (K-12)` / `Enrollment (K-12)` FROM frpm WHERE `County Name` = 'Alameda' ORDER BY (CAST(`Free Meal Count (K-12)` AS REAL) / `Enrollment (K-12)`) DESC LIMIT 1",
+    "pred_result": {
+      "columns": [
+        "MAX(CAST(\"Free Meal Count (K-12)\" AS REAL) * 100.0 / \"Enrollment (K-12)\")"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "`Free Meal Count (K-12)` / `Enrollment (K-12)`"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 0
+  },
+  {
+    "db_id": "california_schools",
+    "question": "Please list the lowest three eligible free rates for students aged 5-17 in continuation schools.",
+    "evidence": "Eligible free rates for students aged 5-17 = `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)`",
+    "predicted_sql": "SELECT CAST(\"Free Meal Count (Ages 5-17)\" AS REAL) / \"Enrollment (Ages 5-17)\" FROM frpm WHERE \"School Type\" = 'Continuation Schools' ORDER BY CAST(\"Free Meal Count (Ages 5-17)\" AS REAL) / \"Enrollment (Ages 5-17)\" ASC LIMIT 3",
+    "gold_sql": "SELECT `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)` FROM frpm WHERE `Educational Option Type` = 'Continuation School' AND `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)` IS NOT NULL ORDER BY `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)` ASC LIMIT 3",
+    "pred_result": {
+      "columns": [
+        "CAST(\"Free Meal Count (Ages 5-17)\" AS REAL) / \"Enrollment (Ages 5-17)\""
+      ],
+      "n_rows": 0,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "`Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)`"
+      ],
+      "n_rows": 3,
+      "error": false
+    },
+    "error_index": 1
+  },
+  {
+    "db_id": "california_schools",
+    "question": "Which active district has the highest average score in Reading?",
+    "evidence": "",
+    "predicted_sql": "SELECT T1.District FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.\"CDSCode\" = T2.cds WHERE T1.StatusType = 'Active' GROUP BY T1.District ORDER BY AVG(T2.AvgScrRead) DESC LIMIT 1",
+    "gold_sql": "SELECT T1.District FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.StatusType = 'Active' ORDER BY T2.AvgScrRead DESC LIMIT 1",
+    "pred_result": {
+      "columns": [
+        "District"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "District"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 15
+  },
+  {
+    "db_id": "california_schools",
+    "question": "How many schools in merged Alameda have number of test takers less than 100?",
+    "evidence": "",
+    "predicted_sql": "SELECT COUNT(T1.CDSCode) FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.County = 'Alameda' AND T2.NumTstTakr < 100",
+    "gold_sql": "SELECT COUNT(T1.CDSCode) FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.StatusType = 'Merged' AND T2.NumTstTakr < 100 AND T1.County = 'Lake'",
+    "pred_result": {
+      "columns": [
+        "COUNT(T1.CDSCode)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "COUNT(T1.CDSCode)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 16
+  },
+  {
+    "db_id": "california_schools",
+    "question": "Rank schools by their average score in Writing where the score is greater than 499, showing their charter numbers.",
+    "evidence": "Valid charter number means the number is not null",
+    "predicted_sql": "SELECT T2.CharterNum, T1.AvgScrWrite FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T1.AvgScrWrite > 499 AND T2.CharterNum IS NOT NULL ORDER BY T1.AvgScrWrite DESC",
+    "gold_sql": "SELECT CharterNum, AvgScrWrite, RANK() OVER (ORDER BY AvgScrWrite DESC) AS WritingScoreRank FROM schools AS T1  INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T2.AvgScrWrite > 499 AND CharterNum is not null",
+    "pred_result": {
+      "columns": [
+        "CharterNum",
+        "AvgScrWrite"
+      ],
+      "n_rows": 50,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "CharterNum",
+        "AvgScrWrite",
+        "WritingScoreRank"
+      ],
+      "n_rows": 50,
+      "error": false
+    },
+    "error_index": 17
+  },
+  {
+    "db_id": "california_schools",
+    "question": "Which school in Contra Costa has the highest number of test takers?",
+    "evidence": "",
+    "predicted_sql": "SELECT T1.School FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.County = 'Contra Costa' ORDER BY T2.NumTstTakr DESC LIMIT 1",
+    "gold_sql": "SELECT sname FROM satscores WHERE cname = 'Contra Costa' AND sname IS NOT NULL ORDER BY NumTstTakr DESC LIMIT 1",
+    "pred_result": {
+      "columns": [
+        "School"
+      ],
+      "n_rows": 0,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "sname"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 22
+  },
+  {
+    "db_id": "california_schools",
+    "question": "List the names of schools with more than 30 difference in enrollements between K-12 and ages 5-17? Please also give the full street adress of the schools.",
+    "evidence": "Diffrence in enrollement = `Enrollment (K-12)` - `Enrollment (Ages 5-17)`",
+    "predicted_sql": "SELECT T1.\"School Name\", T2.\"Street\" FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.\"CDSCode\" = T2.\"CDSCode\" WHERE T1.\"Enrollment (K-12)\" - T1.\"Enrollment (Ages 5-17)\" > 30",
+    "gold_sql": "SELECT T1.School, T1.Street FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.`Enrollment (K-12)` - T2.`Enrollment (Ages 5-17)` > 30",
+    "pred_result": {
+      "columns": [
+        "School Name",
+        "Street"
+      ],
+      "n_rows": 1239,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "School",
+        "Street"
+      ],
+      "n_rows": 1239,
+      "error": false
+    },
+    "error_index": 23
+  },
+  {
+    "db_id": "california_schools",
+    "question": "Give the names of the schools with the percent eligible for free meals in K-12 is more than 0.1 and test takers whose test score is greater than or equal to 1500?",
+    "evidence": "Percent eligible for free meals = Free Meal Count (K-12) / Total (Enrollment (K-12)",
+    "predicted_sql": "SELECT T1.School FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.\"CDSCode\" = T2.\"CDSCode\" INNER JOIN satscores AS T3 ON T1.\"CDSCode\" = T3.cds WHERE T2.\"Percent (%) Eligible Free (K-12)\" > 0.1 AND T3.NumGE1500 > 0",
+    "gold_sql": "SELECT T2.`School Name` FROM satscores AS T1 INNER JOIN frpm AS T2 ON T1.cds = T2.CDSCode WHERE CAST(T2.`Free Meal Count (K-12)` AS REAL) / T2.`Enrollment (K-12)` > 0.1 AND T1.NumGE1500 > 0",
+    "pred_result": {
+      "columns": [
+        "School"
+      ],
+      "n_rows": 1068,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "School Name"
+      ],
+      "n_rows": 1068,
+      "error": false
+    },
+    "error_index": 24
+  },
+  {
+    "db_id": "california_schools",
+    "question": "Name schools in Riverside which the average of average math score for SAT is grater than 400, what is the funding type of these schools?",
+    "evidence": "Average of average math = sum(average math scores) / count(schools).",
+    "predicted_sql": "SELECT T1.School, T1.FundingType FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.County = 'Riverside' GROUP BY T1.School HAVING AVG(T2.AvgScrMath) > 400",
+    "gold_sql": "SELECT T1.sname, T2.`Charter Funding Type` FROM satscores AS T1 INNER JOIN frpm AS T2 ON T1.cds = T2.CDSCode WHERE T2.`District Name` LIKE 'Riverside%' GROUP BY T1.sname, T2.`Charter Funding Type` HAVING CAST(SUM(T1.AvgScrMath) AS REAL) / COUNT(T1.cds) > 400",
+    "pred_result": {
+      "columns": [
+        "School",
+        "FundingType"
+      ],
+      "n_rows": 60,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "sname",
+        "Charter Funding Type"
+      ],
+      "n_rows": 6,
+      "error": false
+    },
+    "error_index": 25
+  },
+  {
+    "db_id": "california_schools",
+    "question": "State the names and full communication address of high schools in Monterey which has more than 800 free or reduced price meals for ages 15-17?",
+    "evidence": "Full communication address should include Street, City, State and zip code if any.",
+    "predicted_sql": "SELECT T1.\"School\", T1.\"Street\", T1.\"City\", T1.\"State\", T1.\"Zip\" FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.\"CDSCode\" = T2.\"CDSCode\" WHERE T1.\"County\" = 'Monterey' AND T2.\"School Type\" = 'High Schools (Public)' AND T2.\"FRPM Count (Ages 5-17)\" > 800",
+    "gold_sql": "SELECT T1.`School Name`, T2.Street, T2.City, T2.State, T2.Zip FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.County = 'Monterey' AND T1.`Free Meal Count (Ages 5-17)` > 800 AND T1.`School Type` = 'High Schools (Public)'",
+    "pred_result": {
+      "columns": [
+        "School",
+        "Street",
+        "City",
+        "State",
+        "Zip"
+      ],
+      "n_rows": 6,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "School Name",
+        "Street",
+        "City",
+        "State",
+        "Zip"
+      ],
+      "n_rows": 5,
+      "error": false
+    },
+    "error_index": 26
+  },
+  {
+    "db_id": "california_schools",
+    "question": "What is the average score in writing for the schools that were opened after 1991 or closed before 2000? List the school names along with the score. Also, list the communication number of the schools if there is any.",
+    "evidence": "Communication number refers to phone number.",
+    "predicted_sql": "SELECT T2.School, T1.AvgScrWrite, T2.Phone FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE CAST(SUBSTR(T2.OpenDate, 1, 4) AS INTEGER) > 1991 OR CAST(SUBSTR(T2.ClosedDate, 1, 4) AS INTEGER) < 2000",
+    "gold_sql": "SELECT T2.School, T1.AvgScrWrite, T2.Phone FROM schools AS T2 LEFT JOIN satscores AS T1 ON T2.CDSCode = T1.cds WHERE strftime('%Y', T2.OpenDate) > '1991' OR strftime('%Y', T2.ClosedDate) < '2000'",
+    "pred_result": {
+      "columns": [
+        "School",
+        "AvgScrWrite",
+        "Phone"
+      ],
+      "n_rows": 749,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "School",
+        "AvgScrWrite",
+        "Phone"
+      ],
+      "n_rows": 8574,
+      "error": false
+    },
+    "error_index": 27
+  },
+  {
+    "db_id": "california_schools",
+    "question": "Consider the average difference between K-12 enrollment and 15-17 enrollment of schools that are locally funded, list the names and DOC type of schools which has a difference above this average.",
+    "evidence": "Difference between K-12 enrollment and 15-17 enrollment can be computed by `Enrollment (K-12)` - `Enrollment (Ages 5-17)`",
+    "predicted_sql": "SELECT T2.School, T2.DOCType FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.FundingType = 'Locally funded' AND (T1.\"Enrollment (K-12)\" - T1.\"Enrollment (Ages 5-17)\") > (SELECT AVG(T3.\"Enrollment (K-12)\" - T3.\"Enrollment (Ages 5-17)\") FROM frpm AS T3 INNER JOIN schools AS T4 ON T3.CDSCode = T4.CDSCode WHERE T4.FundingType = 'Locally funded')",
+    "gold_sql": "SELECT T2.School, T2.DOC FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.FundingType = 'Locally funded' AND (T1.`Enrollment (K-12)` - T1.`Enrollment (Ages 5-17)`) > (SELECT AVG(T3.`Enrollment (K-12)` - T3.`Enrollment (Ages 5-17)`) FROM frpm AS T3 INNER JOIN schools AS T4 ON T3.CDSCode = T4.CDSCode WHERE T4.FundingType = 'Locally funded')",
+    "pred_result": {
+      "columns": [
+        "School",
+        "DOCType"
+      ],
+      "n_rows": 57,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "School",
+        "DOC"
+      ],
+      "n_rows": 57,
+      "error": false
+    },
+    "error_index": 28
+  },
+  {
+    "db_id": "california_schools",
+    "question": "Which cities have the top 5 lowest enrollment number for students in grades 1 through 12?",
+    "evidence": "K-12 refers to students in grades 1 through 12.",
+    "predicted_sql": "SELECT T1.City FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.\"CDSCode\" = T2.\"CDSCode\" ORDER BY T2.\"Enrollment (K-12)\" ASC LIMIT 5",
+    "gold_sql": "SELECT T2.City FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode GROUP BY T2.City ORDER BY SUM(T1.`Enrollment (K-12)`) ASC LIMIT 5",
+    "pred_result": {
+      "columns": [
+        "City"
+      ],
+      "n_rows": 5,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "City"
+      ],
+      "n_rows": 5,
+      "error": false
+    },
+    "error_index": 30
+  },
+  {
+    "db_id": "california_schools",
+    "question": "What is the eligible free rate of the 10th and 11th schools with the highest enrolment for students in grades 1 through 12?",
+    "evidence": "K-12 refers to students in grades 1 through 12; Eligible free rate for K-12 = `Free Meal Count (K-12)` / `Enrollment (K-12)`",
+    "predicted_sql": "SELECT 1",
+    "gold_sql": "SELECT CAST(`Free Meal Count (K-12)` AS REAL) / `Enrollment (K-12)` FROM frpm ORDER BY `Enrollment (K-12)` DESC LIMIT 9, 2",
+    "pred_result": {
+      "columns": [
+        "1"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "CAST(`Free Meal Count (K-12)` AS REAL) / `Enrollment (K-12)`"
+      ],
+      "n_rows": 2,
+      "error": false
+    },
+    "error_index": 31
+  },
+  {
+    "db_id": "california_schools",
+    "question": "What is the eligible free or reduced price meal rate for the top 5 schools in grades 1-12 with the highest free or reduced price meal count of the schools with the ownership code 66?",
+    "evidence": "grades 1-12 means K-12; Eligible free or reduced price meal rate for K-12 = `FRPM Count (K-12)` / `Enrollment (K-12)`",
+    "predicted_sql": "SELECT T1.\"FRPM Count (K-12)\" / T1.\"Enrollment (K-12)\" FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.\"CDSCode\" = T2.\"CDSCode\" WHERE T2.\"SOC\" = '66' AND T1.\"Low Grade\" = 'K' AND T1.\"High Grade\" = '12' ORDER BY T1.\"FRPM Count (K-12)\" DESC LIMIT 5",
+    "gold_sql": "SELECT CAST(T1.`FRPM Count (K-12)` AS REAL) / T1.`Enrollment (K-12)` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.SOC = 66 ORDER BY T1.`FRPM Count (K-12)` DESC LIMIT 5",
+    "pred_result": {
+      "columns": [
+        "T1.\"FRPM Count (K-12)\" / T1.\"Enrollment (K-12)\""
+      ],
+      "n_rows": 4,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "CAST(T1.`FRPM Count (K-12)` AS REAL) / T1.`Enrollment (K-12)`"
+      ],
+      "n_rows": 5,
+      "error": false
+    },
+    "error_index": 32
+  },
+  {
+    "db_id": "california_schools",
+    "question": "If there are any, what are the websites address of the schools with a free meal count of 1,900-2,000 to students aged 5-17? Include the name of the school.",
+    "evidence": "",
+    "predicted_sql": "SELECT T1.Website, T1.School FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.\"Free Meal Count (Ages 5-17)\" BETWEEN 1900 AND 2000",
+    "gold_sql": "SELECT T2.Website, T1.`School Name` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`Free Meal Count (Ages 5-17)` BETWEEN 1900 AND 2000 AND T2.Website IS NOT NULL",
+    "pred_result": {
+      "columns": [
+        "Website",
+        "School"
+      ],
+      "n_rows": 3,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "Website",
+        "School Name"
+      ],
+      "n_rows": 2,
+      "error": false
+    },
+    "error_index": 33
+  },
+  {
+    "db_id": "california_schools",
+    "question": "What is the free rate for students between the ages of 5 and 17 at the school run by Kacey Gibson?",
+    "evidence": "Eligible free rates for students aged 5-17 = `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)`",
+    "predicted_sql": "SELECT CAST(T1.\"Free Meal Count (Ages 5-17)\" AS REAL) * 100.0 / T1.\"Enrollment (Ages 5-17)\" FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.\"CDSCode\" = T2.\"CDSCode\" WHERE T2.\"AdmFName1\" = 'Kacey' AND T2.\"AdmLName1\" = 'Gibson'",
+    "gold_sql": "SELECT CAST(T2.`Free Meal Count (Ages 5-17)` AS REAL) / T2.`Enrollment (Ages 5-17)` FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.AdmFName1 = 'Kacey' AND T1.AdmLName1 = 'Gibson'",
+    "pred_result": {
+      "columns": [
+        "CAST(T1.\"Free Meal Count (Ages 5-17)\" AS REAL) * 100.0 / T1.\"Enrollment (Ages 5-17)\""
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "CAST(T2.`Free Meal Count (Ages 5-17)` AS REAL) / T2.`Enrollment (Ages 5-17)`"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 34
+  },
+  {
+    "db_id": "california_schools",
+    "question": "What is the complete address of the school with the lowest excellence rate? Indicate the Street, City, Zip and State.",
+    "evidence": "Execellence Rate = NumGE1500 / NumTstTakr; complete address has Street, City, State, Zip code",
+    "predicted_sql": "SELECT T2.Street, T2.City, T2.Zip, T2.State FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.\"CDSCode\" ORDER BY CAST(T1.NumGE1500 AS REAL) * 1.0 / T1.NumTstTakr ASC LIMIT 1",
+    "gold_sql": "SELECT T2.Street, T2.City, T2.State, T2.Zip FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY CAST(T1.NumGE1500 AS REAL) / T1.NumTstTakr ASC LIMIT 1",
+    "pred_result": {
+      "columns": [
+        "Street",
+        "City",
+        "Zip",
+        "State"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "Street",
+        "City",
+        "State",
+        "Zip"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 37
+  },
+  {
+    "db_id": "california_schools",
+    "question": "What is the telephone number for the school with the lowest average score in reading in Fresno Unified?",
+    "evidence": "Fresno Unified is a name of district;",
+    "predicted_sql": "SELECT T1.Phone FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.District = 'Fresno Unified' ORDER BY T2.AvgScrRead ASC LIMIT 1",
+    "gold_sql": "SELECT T2.Phone FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.District = 'Fresno Unified' AND T1.AvgScrRead IS NOT NULL ORDER BY T1.AvgScrRead ASC LIMIT 1",
+    "pred_result": {
+      "columns": [
+        "Phone"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "Phone"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 40
+  },
+  {
+    "db_id": "california_schools",
+    "question": "List the names of virtual schools that are among the top 5 in their respective counties based on average reading scores.",
+    "evidence": "Exclusively virtual refers to Virtual = 'F'; respective counties means PARTITION BY County",
+    "predicted_sql": "SELECT T.School FROM (SELECT T1.School, T1.Virtual, RANK() OVER (PARTITION BY T1.County ORDER BY T2.AvgScrRead DESC) AS rnk FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds) AS T WHERE T.rnk <= 5 AND T.Virtual = 'F'",
+    "gold_sql": "SELECT School FROM (SELECT T2.School,T1.AvgScrRead, RANK() OVER (PARTITION BY T2.County ORDER BY T1.AvgScrRead DESC) AS rnk FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.Virtual = 'F' ) ranked_schools WHERE rnk <= 5",
+    "pred_result": {
+      "columns": [
+        "School"
+      ],
+      "n_rows": 2,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "School"
+      ],
+      "n_rows": 34,
+      "error": false
+    },
+    "error_index": 41
+  },
+  {
+    "db_id": "california_schools",
+    "question": "What is the average math score of the school with the lowest average score for all subjects, and in which county is it located?",
+    "evidence": "Average score for all subjects can be computed by AvgScrMath + AvgScrRead + AvgScrWrite",
+    "predicted_sql": "SELECT T1.AvgScrMath, T2.County FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.\"CDSCode\" ORDER BY (T1.AvgScrMath + T1.AvgScrRead + T1.AvgScrWrite) ASC LIMIT 1",
+    "gold_sql": "SELECT T1.AvgScrMath, T2.County FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T1.AvgScrMath IS NOT NULL ORDER BY T1.AvgScrMath + T1.AvgScrRead + T1.AvgScrWrite ASC LIMIT 1",
+    "pred_result": {
+      "columns": [
+        "AvgScrMath",
+        "County"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "AvgScrMath",
+        "County"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 43
+  },
+  {
+    "db_id": "california_schools",
+    "question": "Which different county has the most number of closed schools? Please provide the name of each school as well as the closure date.",
+    "evidence": "Closure date and closed date are synonyms; 'Closed' was mentioned in schools.StatusType.",
+    "predicted_sql": "SELECT T1.County, T1.School, T1.ClosedDate FROM schools AS T1 WHERE T1.StatusType = 'Closed' AND T1.County = (SELECT County FROM schools WHERE StatusType = 'Closed' GROUP BY County ORDER BY COUNT(School) DESC LIMIT 1)",
+    "gold_sql": "SELECT DISTINCT County, School, ClosedDate FROM schools WHERE County = ( SELECT County FROM schools WHERE StatusType = 'Closed' GROUP BY County ORDER BY COUNT(School) DESC LIMIT 1 ) AND StatusType = 'Closed' AND school IS NOT NULL",
+    "pred_result": {
+      "columns": [
+        "County",
+        "School",
+        "ClosedDate"
+      ],
+      "n_rows": 879,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "County",
+        "School",
+        "ClosedDate"
+      ],
+      "n_rows": 858,
+      "error": false
+    },
+    "error_index": 49
+  },
+  {
+    "db_id": "california_schools",
+    "question": "In which mailing street address can you find the school that has the lowest average score in reading? Also give the school's name.",
+    "evidence": "",
+    "predicted_sql": "SELECT T1.MailStreet, T1.School FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds ORDER BY T2.AvgScrRead ASC LIMIT 1",
+    "gold_sql": "SELECT T2.MailStreet, T2.School FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T1.AvgScrRead IS NOT NULL ORDER BY T1.AvgScrRead ASC LIMIT 1",
+    "pred_result": {
+      "columns": [
+        "MailStreet",
+        "School"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "MailStreet",
+        "School"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 51
+  },
+  {
+    "db_id": "california_schools",
+    "question": "How many test takers are there at the school/s whose mailing city address is in Fresno?",
+    "evidence": "",
+    "predicted_sql": "SELECT SUM(T1.NumTstTakr) FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.\"CDSCode\" WHERE T2.MailCity = 'Fresno'",
+    "gold_sql": "SELECT T1.NumTstTakr FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.MailCity = 'Fresno'",
+    "pred_result": {
+      "columns": [
+        "SUM(T1.NumTstTakr)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "NumTstTakr"
+      ],
+      "n_rows": 32,
+      "error": false
+    },
+    "error_index": 53
+  },
+  {
+    "db_id": "california_schools",
+    "question": "Please specify all of the schools and their related mailing zip codes that are under Avetik Atoian's administration.",
+    "evidence": "",
+    "predicted_sql": "SELECT School, MailZip FROM schools WHERE (AdmFName1 = 'Avetik' AND AdmLName1 = 'Atoian') OR (AdmFName2 = 'Avetik' AND AdmLName2 = 'Atoian') OR (AdmFName3 = 'Avetik' AND AdmLName3 = 'Atoian')",
+    "gold_sql": "SELECT School, MailZip FROM schools WHERE AdmFName1 = 'Avetik' AND AdmLName1 = 'Atoian'",
+    "pred_result": {
+      "columns": [
+        "School",
+        "MailZip"
+      ],
+      "n_rows": 5,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "School",
+        "MailZip"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 54
+  },
+  {
+    "db_id": "california_schools",
+    "question": "What is the website for the schools under the administrations of Mike Larson and Dante Alvarez?",
+    "evidence": "",
+    "predicted_sql": "SELECT Website FROM schools WHERE (AdmFName1 = 'Mike' AND AdmLName1 = 'Larson' AND AdmFName2 = 'Dante' AND AdmLName2 = 'Alvarez') OR (AdmFName1 = 'Dante' AND AdmLName1 = 'Alvarez' AND AdmFName2 = 'Mike' AND AdmLName2 = 'Larson') OR (AdmFName1 = 'Mike' AND AdmLName1 = 'Larson' AND AdmFName3 = 'Dante' AND AdmLName3 = 'Alvarez') OR (AdmFName1 = 'Dante' AND AdmLName1 = 'Alvarez' AND AdmFName3 = 'Mike' AND AdmLName3 = 'Larson') OR (AdmFName2 = 'Mike' AND AdmLName2 = 'Larson' AND AdmFName3 = 'Dante' AND AdmLName3 = 'Alvarez') OR (AdmFName2 = 'Dante' AND AdmLName2 = 'Alvarez' AND AdmFName3 = 'Mike' AND AdmLName3 = 'Larson')",
+    "gold_sql": "SELECT Website FROM schools WHERE (AdmFName1 = 'Mike' AND AdmLName1 = 'Larson') OR (AdmFName1 = 'Dante' AND AdmLName1 = 'Alvarez')",
+    "pred_result": {
+      "columns": [
+        "Website"
+      ],
+      "n_rows": 0,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "Website"
+      ],
+      "n_rows": 2,
+      "error": false
+    },
+    "error_index": 59
+  },
+  {
+    "db_id": "california_schools",
+    "question": "In chartered schools with charter number 00D2, what are the names of all the administrators? Include the name of the school and the city to which it belongs",
+    "evidence": "Chartered schools refer to Charter = 1 in the table schools; Full name refers to first name, last name",
+    "predicted_sql": "SELECT School, City, AdmFName1, AdmLName1, AdmFName2, AdmLName2, AdmFName3, AdmLName3 FROM schools WHERE Charter = 1 AND CharterNum = '00D2'",
+    "gold_sql": "SELECT AdmFName1, AdmLName1, School, City FROM schools WHERE Charter = 1 AND CharterNum = '00D2'",
+    "pred_result": {
+      "columns": [
+        "School",
+        "City",
+        "AdmFName1",
+        "AdmLName1",
+        "AdmFName2",
+        "AdmLName2",
+        "AdmFName3",
+        "AdmLName3"
+      ],
+      "n_rows": 8,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "AdmFName1",
+        "AdmLName1",
+        "School",
+        "City"
+      ],
+      "n_rows": 8,
+      "error": false
+    },
+    "error_index": 63
+  },
+  {
+    "db_id": "california_schools",
+    "question": "What is the ratio in percentage of Santa Clara County schools that are locally funded compared to all other types of charter school funding?",
+    "evidence": "Ratio in percentage = (count(locally funded schools in Santa Clara) / count(all funding type schools in Santa Clara) * 100%",
+    "predicted_sql": "SELECT CAST(COUNT(CASE WHEN \"FundingType\" = 'Locally funded' THEN 1 END) AS REAL) * 100.0 / COUNT(\"CDSCode\") FROM schools WHERE \"County\" = 'Santa Clara'",
+    "gold_sql": "SELECT CAST(SUM(CASE WHEN FundingType = 'Locally funded' THEN 1 ELSE 0 END) AS REAL) * 100 / SUM(CASE WHEN FundingType != 'Locally funded' THEN 1 ELSE 0 END) FROM schools WHERE County = 'Santa Clara' AND Charter = 1",
+    "pred_result": {
+      "columns": [
+        "CAST(COUNT(CASE WHEN \"FundingType\" = 'Locally funded' THEN 1 END) AS REAL) * 100.0 / COUNT(\"CDSCode\")"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "CAST(SUM(CASE WHEN FundingType = 'Locally funded' THEN 1 ELSE 0 END) AS REAL) * 100 / SUM(CASE WHEN FundingType != 'Locally funded' THEN 1 ELSE 0 END)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 65
+  },
+  {
+    "db_id": "california_schools",
+    "question": "What is the total amount of Community College District closure in 1989 in the city of San Francisco?",
+    "evidence": "",
+    "predicted_sql": "SELECT 1",
+    "gold_sql": "SELECT COUNT(School) FROM schools WHERE strftime('%Y', ClosedDate) = '1989' AND City = 'San Francisco' AND DOCType = 'Community College District'",
+    "pred_result": {
+      "columns": [
+        "1"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "COUNT(School)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 67
+  },
+  {
+    "db_id": "california_schools",
+    "question": "How many active and closed District Community Day Schools are there in the county of Alpine?",
+    "evidence": "",
+    "predicted_sql": "SELECT COUNT(CDSCode) FROM schools WHERE StatusType IN ('Active', 'Closed') AND SOCType = 'District Community Day School' AND County = 'Alpine'",
+    "gold_sql": "SELECT COUNT(School) FROM schools WHERE (StatusType = 'Closed' OR StatusType = 'Active') AND SOC = 69 AND County = 'Alpine'",
+    "pred_result": {
+      "columns": [
+        "COUNT(CDSCode)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "COUNT(School)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 70
+  },
+  {
+    "db_id": "california_schools",
+    "question": "What is the free or reduced price meal count for ages 5 to 17 in the Youth Authority School with a mailing street address of PO Box 1040?",
+    "evidence": "",
+    "predicted_sql": "SELECT T1.\"FRPM Count (Ages 5-17)\" FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.\"CDSCode\" = T2.\"CDSCode\" WHERE T2.\"School\" = 'Youth Authority School' AND T2.\"MailStreet\" = 'PO Box 1040'",
+    "gold_sql": "SELECT T1.`FRPM Count (Ages 5-17)` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.MailStreet = 'PO Box 1040' AND T2.SOCType = 'Youth Authority Facilities'",
+    "pred_result": {
+      "columns": [
+        "FRPM Count (Ages 5-17)"
+      ],
+      "n_rows": 0,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "FRPM Count (Ages 5-17)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 73
+  },
+  {
+    "db_id": "california_schools",
+    "question": "Of the schools that offers a magnet program serving a grade span of Kindergarten to 8th grade, how many offers Multiple Provision Types? List the number of cities that offers a Kindergarten to 8th grade span and indicate how many schools are there serving such grade span for each city.",
+    "evidence": "Kindergarten to 8th grade refers to K-8; 'Offers a magnet program' means Magnet = 1; Multiple Provision Types refers to `NSLP Provision Status` = 'Multiple Provision Types'",
+    "predicted_sql": "SELECT COUNT(CASE WHEN T1.\"NSLP Provision Status\" = 'Multiple Provision Types' THEN 1 END), T2.City, COUNT(T2.\"CDSCode\") FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.\"CDSCode\" = T2.\"CDSCode\" WHERE T2.Magnet = 1 AND T2.GSserved = 'K-8' GROUP BY T2.City",
+    "gold_sql": "SELECT T2.City, COUNT(T2.CDSCode) FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.Magnet = 1 AND T2.GSoffered = 'K-8' AND T1.`NSLP Provision Status` = 'Multiple Provision Types' GROUP BY T2.City",
+    "pred_result": {
+      "columns": [
+        "COUNT(CASE WHEN T1.\"NSLP Provision Status\" = 'Multiple Provision Types' THEN 1 END)",
+        "City",
+        "COUNT(T2.\"CDSCode\")"
+      ],
+      "n_rows": 18,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "City",
+        "COUNT(T2.CDSCode)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 83
+  },
+  {
+    "db_id": "california_schools",
+    "question": "What are the two most common first names among the school administrators? Indicate the district to which they administer.",
+    "evidence": "",
+    "predicted_sql": "SELECT AdmFName1, District FROM schools GROUP BY AdmFName1 ORDER BY COUNT(AdmFName1) DESC LIMIT 2",
+    "gold_sql": "SELECT DISTINCT T1.AdmFName1, T1.District FROM schools AS T1 INNER JOIN ( SELECT admfname1 FROM schools GROUP BY admfname1 ORDER BY COUNT(admfname1) DESC LIMIT 2 ) AS T2 ON T1.AdmFName1 = T2.admfname1",
+    "pred_result": {
+      "columns": [
+        "AdmFName1",
+        "District"
+      ],
+      "n_rows": 2,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "AdmFName1",
+        "District"
+      ],
+      "n_rows": 215,
+      "error": false
+    },
+    "error_index": 84
+  },
+  {
+    "db_id": "california_schools",
+    "question": "What is the Percent (%) Eligible Free (K-12) in the school administered by an administrator whose first name is Alusine. List the district code of the school.",
+    "evidence": "Percent (%) Eligible Free (K-12) = `Free Meal Count (K-12)` / `Enrollment (K-12)` * 100%",
+    "predicted_sql": "SELECT T1.\"Percent (%) Eligible Free (K-12)\", T1.\"District Code\" FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.\"CDSCode\" = T2.\"CDSCode\" WHERE T2.\"AdmFName1\" = 'Alusine'",
+    "gold_sql": "SELECT T1.`Free Meal Count (K-12)` * 100 / T1.`Enrollment (K-12)`, T1.`District Code` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.AdmFName1 = 'Alusine'",
+    "pred_result": {
+      "columns": [
+        "Percent (%) Eligible Free (K-12)",
+        "District Code"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "T1.`Free Meal Count (K-12)` * 100 / T1.`Enrollment (K-12)`",
+        "District Code"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 85
+  },
+  {
+    "db_id": "california_schools",
+    "question": "What is the administrator's last name that oversees the school with Charter number 40? Indicate the district, the county where the school is situated, and the name of the school.",
+    "evidence": "",
+    "predicted_sql": "SELECT AdmLName1, District, County, School FROM schools WHERE CharterNum = '40'",
+    "gold_sql": "SELECT AdmLName1, District, County, School FROM schools WHERE CharterNum = '0040'",
+    "pred_result": {
+      "columns": [
+        "AdmLName1",
+        "District",
+        "County",
+        "School"
+      ],
+      "n_rows": 0,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "AdmLName1",
+        "District",
+        "County",
+        "School"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 86
+  },
+  {
+    "db_id": "california_schools",
+    "question": "What are the valid e-mail addresses of the administrator of the school located in the San Bernardino county, City of San Bernardino City Unified that opened between 1/1/2009 to 12/31/2010 whose school types are public Intermediate/Middle Schools and Unified Schools?",
+    "evidence": "Intermediate/Middle Schools refers to SOC = 62; Unified School refers to DOC = 54; years between 2009 and 2010 can refer to 'between 1/1/2009 to 12/31/2010'",
+    "predicted_sql": "SELECT AdmEmail1, AdmEmail2, AdmEmail3 FROM schools WHERE County = 'San Bernardino' AND District = 'San Bernardino City Unified' AND OpenDate BETWEEN '2009-01-01' AND '2010-12-31' AND SOC = '62' AND DOC = '54'",
+    "gold_sql": "SELECT T2.AdmEmail1, T2.AdmEmail2 FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.County = 'San Bernardino' AND T2.City = 'San Bernardino' AND T2.DOC = 54 AND strftime('%Y', T2.OpenDate) BETWEEN '2009' AND '2010' AND T2.SOC = 62",
+    "pred_result": {
+      "columns": [
+        "AdmEmail1",
+        "AdmEmail2",
+        "AdmEmail3"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "AdmEmail1",
+        "AdmEmail2"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 87
+  },
+  {
+    "db_id": "financial",
+    "question": "How many accounts who have region in Prague are eligible for loans?",
+    "evidence": "A3 contains the data of region",
+    "predicted_sql": "SELECT COUNT(T1.account_id) FROM account AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id WHERE T2.A3 = 'Prague'",
+    "gold_sql": "SELECT COUNT(T1.account_id) FROM account AS T1 INNER JOIN loan AS T2 ON T1.account_id = T2.account_id INNER JOIN district AS T3 ON T1.district_id = T3.district_id WHERE T3.A3 = 'Prague'",
+    "pred_result": {
+      "columns": [
+        "COUNT(T1.account_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "COUNT(T1.account_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 90
+  },
+  {
+    "db_id": "financial",
+    "question": "List out the no. of districts that have female average salary is more than 6000 but less than 10000?",
+    "evidence": "A11 refers to average salary; Female mapps to gender = 'F'",
+    "predicted_sql": "SELECT COUNT(T1.district_id) FROM district AS T1 INNER JOIN client AS T2 ON T1.district_id = T2.district_id WHERE T2.gender = 'F' AND T1.A11 > 6000 AND T1.A11 < 10000",
+    "gold_sql": "SELECT COUNT(DISTINCT T2.district_id)  FROM client AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id WHERE T1.gender = 'F' AND T2.A11 BETWEEN 6000 AND 10000",
+    "pred_result": {
+      "columns": [
+        "COUNT(T1.district_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "COUNT(DISTINCT T2.district_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 92
+  },
+  {
+    "db_id": "financial",
+    "question": "How many male customers who are living in North Bohemia have average salary greater than 8000?",
+    "evidence": "Male means that gender = 'M'; A3 refers to region; A11 pertains to average salary.",
+    "predicted_sql": "SELECT COUNT(T1.client_id) FROM client AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id WHERE T1.gender = 'M' AND T2.A3 = 'North Bohemia' AND T2.A11 > 8000",
+    "gold_sql": "SELECT COUNT(T1.client_id) FROM client AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id WHERE T1.gender = 'M' AND T2.A3 = 'north Bohemia' AND T2.A11 > 8000",
+    "pred_result": {
+      "columns": [
+        "COUNT(T1.client_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "COUNT(T1.client_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 93
+  },
+  {
+    "db_id": "financial",
+    "question": "List out the account numbers of female clients who are oldest and has lowest average salary, calculate the gap between this lowest average salary with the highest average salary?",
+    "evidence": "Female means gender = 'F'; A11 refers to average salary; Gap = highest average salary - lowest average salary; If the person A's birthdate > B's birthdate, it means that person B is order than person A.",
+    "predicted_sql": "SELECT T1.account_id, (SELECT MAX(A11) FROM district) - (SELECT MIN(A11) FROM district) FROM account AS T1 INNER JOIN disp AS T2 ON T1.account_id = T2.account_id INNER JOIN client AS T3 ON T2.client_id = T3.client_id INNER JOIN district AS T4 ON T3.district_id = T4.district_id WHERE T3.gender = 'F' ORDER BY T3.birth_date ASC, T4.A11 ASC LIMIT 1",
+    "gold_sql": "SELECT T1.account_id , ( SELECT MAX(A11) - MIN(A11) FROM district ) FROM account AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN disp AS T3 ON T1.account_id = T3.account_id INNER JOIN client AS T4 ON T3.client_id = T4.client_id WHERE T2.district_id = ( SELECT district_id FROM client WHERE gender = 'F' ORDER BY birth_date ASC LIMIT 1 ) ORDER BY T2.A11 DESC LIMIT 1",
+    "pred_result": {
+      "columns": [
+        "account_id",
+        "(SELECT MAX(A11) FROM district) - (SELECT MIN(A11) FROM district)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "account_id",
+        "( SELECT MAX(A11) - MIN(A11) FROM district )"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 94
+  },
+  {
+    "db_id": "financial",
+    "question": "List out the accounts who have the earliest trading date in 1995 ?",
+    "evidence": "",
+    "predicted_sql": "SELECT DISTINCT account_id FROM trans WHERE date = ( SELECT MIN(date) FROM trans WHERE date LIKE '1995%' )",
+    "gold_sql": "SELECT account_id FROM trans WHERE STRFTIME('%Y', date) = '1995' ORDER BY date ASC LIMIT 1",
+    "pred_result": {
+      "columns": [
+        "account_id"
+      ],
+      "n_rows": 315,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "account_id"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 101
+  },
+  {
+    "db_id": "financial",
+    "question": "State different accounts who have account opening date before 1997 and own an amount of money greater than 3000USD",
+    "evidence": "",
+    "predicted_sql": "SELECT DISTINCT T1.account_id FROM account AS T1 JOIN loan AS T2 ON T1.account_id = T2.account_id WHERE T1.date < '1997-01-01' AND T2.amount > 3000",
+    "gold_sql": "SELECT DISTINCT T2.account_id FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE STRFTIME('%Y', T2.date) < '1997' AND T1.amount > 3000",
+    "pred_result": {
+      "columns": [
+        "account_id"
+      ],
+      "n_rows": 560,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "account_id"
+      ],
+      "n_rows": 3591,
+      "error": false
+    },
+    "error_index": 102
+  },
+  {
+    "db_id": "financial",
+    "question": "What is the disposition id of the client who made 5100 USD transaction in 1998/9/2?",
+    "evidence": "",
+    "predicted_sql": "SELECT T1.disp_id FROM disp AS T1 INNER JOIN trans AS T2 ON T1.account_id = T2.account_id WHERE T2.amount = 5100 AND T2.date = '1998-09-02'",
+    "gold_sql": "SELECT T1.disp_id FROM disp AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN trans AS T3 ON T2.account_id = T3.account_id WHERE T3.date='1997-08-20' AND T3.amount = 5100",
+    "pred_result": {
+      "columns": [
+        "disp_id"
+      ],
+      "n_rows": 4,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "disp_id"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 110
+  },
+  {
+    "db_id": "financial",
+    "question": "List the loan ID, district and average salary for loan with duration of 60 months.",
+    "evidence": "A3 refers to regions; A11 refers to average salary",
+    "predicted_sql": "it selects `A3`. If the question meant District Name, it would likely be `A2`. If it meant Region, it would be `A3`. Given the ambiguity, let's look at the structure. The prompt asks to fix issues. Is selecting `A3` an issue? The question asks for \"district\". `A2` is `district_name`. `A3` is `region`. Technically, \"district\" should map to `A2`. However, sometimes \"district\" is used loosely. Let's check the other parts first. 2) **Check JOINs**: - `loan` (T1) joins with `account` (T2) on `account_id`. This is correct via Foreign Key. - `account` (T2) joins with `district` (T3) on `district_id`. This is correct via Foreign Key. 3) **Check WHERE clause**: - `WHERE T1.duration = 60`. The question asks for \"loan with duration of 60 months\". The column `duration` is in months. This is correct. 4) **Check SELECT clause**: - `T1.loan_id`: Correct. - `T3.A3`: The question asks for \"district\". The table `district` has `A2` as `district_name` and `A3` as `region`. Strictly speaking, \"district\" should be `A2`. However, looking at the hint \"A3 refers to regions\", it might be guiding us that the user *might* have confused district/region or that the question intends to ask for the region. But wait, if the question asks for \"district\", and the hint clarifies A3 is region, it's possible the question *meant* region, or the SQL is wrong for selecting A3 instead of A2. Let's look at similar examples. Often, \"district\" in natural language queries for this specific dataset (Czech bank data) refers to the district name (`A2`). If the SQL selects `A3` (Region), it is likely incorrect based on the word \"district\". - *Self-Correction*: Let's look at the hint again. \"Hint: A3 refers to regions; A11 refers to average salary\". It doesn't mention A2. This suggests the question might actually be asking for the Region, but used the word \"district\" loosely, OR the hint is just providing context for available columns. However, standard practice: \"District\" -> `A2` (district_name). \"Region\" -> `A3`. If I change `A3` to `A2`, does it fit better? Yes. But let's look at the provided SQL in the prompt's example style. The example had a clear error. Here, is `A3` an error? - Let's reconsider the hint. If the hint explicitly defines A3, it might be implying that A3 is the intended column for the location-based query part. But \"district\" is specific. Let's assume the question text is precise: \"district\". Then `A2` is the correct column. If the question meant region, it would say region. - *Alternative interpretation*: Maybe the question implies the district ID? No, \"List the ... district\" usually means the name. - Let's look at the provided SQL again: `SELECT T1.loan_id, T3.A3, T3.A11`. - If I change `A3` to `A2`, it matches \"district name\". - However, there is another possibility. Is there any other issue? - The question asks for \"average salary\". `A11` is `average_salary`. Correct. Let's look at the \"Hint\" again. \"Hint: A3 refers to regions; A11 refers to average salary\". It does *not* say \"A2 refers to district name\". This is suspicious. Why define A3 if the question asks for District? Perhaps the question *means* Region? Or perhaps the SQL is correct because the question writer considers the Region as the broader \"district\" area? Actually, in many of these dataset benchmarks (like Spider), \"district\" often maps to `district_name` (A2). If the SQL uses `A3`, it is likely a mistake in the SQL generation or the question phrasing. However, without a hint for A2, and with a hint for A3, it is highly probable that the intended answer involves `A3` despite the word \"district\", OR the hint is incomplete. Let's look closer at the prompt instructions: \"Fix the given SQLite SQL QUERY for any issues.\" Let's check if there are redundant columns. No. Let's check typos. No. Let's compare `A2` vs `A3`. Column `A2`: district_name. Column `A3`: region. Question: \"List the ... district\". If I strictly follow the semantic meaning, \"district\" = `A2`. If I follow the hint which highlights `A3`, maybe the question meant \"region\"? Let's look at the provided SQL in the prompt block: `SQL: SELECT T1.loan_id, T3.A3, T3.A11 FROM loan AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN district AS T3 ON T2.district_id = T3.district_id WHERE T1.duration = 60` If I assume the question is flawed and means \"Region\", the SQL is correct. If I assume the SQL is flawed and should select \"District Name\", I should change `A3` to `A2`. However, there is a third option. Does the question imply grouping? \"List the loan ID...\". No, it lists individual loans. So no GROUP BY needed. Let's look at the previous example provided in the prompt description. Q: Name movie titles... SQL had `LIMIT 1` and extra column. Here, is there a `LIMIT` missing? No, \"List the loan ID...\" implies all of them. Let's go with the most literal interpretation of \"district\". In the `district` table, `A2` is the name of the district. `A3` is the region. Therefore, selecting `A3` when asked for \"district\" is semantically incorrect. I will change `A3` to `A2`. *Wait*, let me double check the hint usage in these types of problems. Often the hint is generated *for* the correct query. If the hint says \"A3 refers to regions\", it might be explaining a column that *is* in the correct query. If the correct query should have `A2`, the hint would likely say \"A2 refers to district name\". The fact that the hint explains `A3` suggests that `A3` is expected in the answer. This implies the question uses \"district\" to mean \"region\" (a common imprecision in these datasets) or the hint is guiding us to use `A3`. Let's look at the column descriptions again. `A2`: district_name `A3`: region If the hint explicitly points out `A3`, it is strong evidence that `A3` is the intended column. I will stick with the provided SQL's selection of `A3` but verify if there are other errors. Are there any other errors? - JOINs are correct. - WHERE is correct. - Columns exist. Is it possible the question implies distinct values? \"List the loan ID...\". Loan IDs are unique. So no distinct needed. Let's re-read the hint carefully: \"Hint: A3 refers to regions; A11 refers to",
+    "gold_sql": "SELECT T3.loan_id, T2.A2, T2.A11 FROM account AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN loan AS T3 ON T1.account_id = T3.account_id WHERE T3.duration = 60",
+    "pred_result": {
+      "columns": "ERROR",
+      "n_rows": 0,
+      "error": true
+    },
+    "gold_result": {
+      "columns": [
+        "loan_id",
+        "A2",
+        "A11"
+      ],
+      "n_rows": 145,
+      "error": false
+    },
+    "error_index": 124
+  },
+  {
+    "db_id": "financial",
+    "question": "For loans contracts which are still running where client are in debt, list the district of the and the state the percentage unemployment rate increment from year 1995 to 1996.",
+    "evidence": "Unemployment increment rate in percentage = [(unemployment rate 2016 - unemployment rate 2015) / unemployment rate 2015] * 100; unemployment rate 2015 appears in the A12; unemployment rate 2016 appears in the A13; Loan contracts which are still running where client are in debt can be presented as status = 'D'",
+    "predicted_sql": "SELECT DISTINCT T3.A2, ((T3.A13 - T3.A12) * 100.0 / T3.A12) AS unemployment_rate_increment FROM loan AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN district AS T3 ON T2.district_id = T3.district_id WHERE T1.status = 'D'",
+    "gold_sql": "SELECT CAST((T3.A13 - T3.A12) AS REAL) * 100 / T3.A12 FROM loan AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN district AS T3 ON T2.district_id = T3.district_id WHERE T1.status = 'D'",
+    "pred_result": {
+      "columns": [
+        "A2",
+        "unemployment_rate_increment"
+      ],
+      "n_rows": 30,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "CAST((T3.A13 - T3.A12) AS REAL) * 100 / T3.A12"
+      ],
+      "n_rows": 45,
+      "error": false
+    },
+    "error_index": 125
+  },
+  {
+    "db_id": "financial",
+    "question": "List the top nine districts, by descending order, from the highest to the lowest, the number of female account holders.",
+    "evidence": "A2 refers to districts; Female refers to gender = 'F'",
+    "predicted_sql": "SELECT T1.A2 FROM district AS T1 INNER JOIN client AS T2 ON T1.district_id = T2.district_id WHERE T2.gender = 'F' GROUP BY T1.A2 ORDER BY COUNT(T2.client_id) DESC LIMIT 9",
+    "gold_sql": "SELECT T2.A2, COUNT(T1.client_id) FROM client AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id WHERE T1.gender = 'F' GROUP BY T2.district_id, T2.A2 ORDER BY COUNT(T1.client_id) DESC LIMIT 9",
+    "pred_result": {
+      "columns": [
+        "A2"
+      ],
+      "n_rows": 9,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "A2",
+        "COUNT(T1.client_id)"
+      ],
+      "n_rows": 9,
+      "error": false
+    },
+    "error_index": 128
+  },
+  {
+    "db_id": "financial",
+    "question": "Which are the top ten withdrawals (non-credit card) by district names for the month of January 1996?",
+    "evidence": "Non-credit card withdraws refers to type = 'VYDAJ'; January 1996 can be found by date LIKE '1996-01%' in the database; A2 means district names",
+    "predicted_sql": "SELECT T3.A2 FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN district AS T3 ON T2.district_id = T3.district_id WHERE T1.type = 'VYDAJ' AND T1.date LIKE '1996-01%' GROUP BY T3.A2 ORDER BY SUM(T1.amount) DESC LIMIT 10",
+    "gold_sql": "SELECT DISTINCT T1.A2 FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id INNER JOIN trans AS T3 ON T2.account_id = T3.account_id WHERE T3.type = 'VYDAJ' AND T3.date LIKE '1996-01%' ORDER BY A2 ASC LIMIT 10",
+    "pred_result": {
+      "columns": [
+        "A2"
+      ],
+      "n_rows": 10,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "A2"
+      ],
+      "n_rows": 10,
+      "error": false
+    },
+    "error_index": 129
+  },
+  {
+    "db_id": "financial",
+    "question": "How many of the account holders in South Bohemia still do not own credit cards?",
+    "evidence": "A3 contains the region names; South Bohemia is one of region names.",
+    "predicted_sql": "select accounts in South Bohemia that are NOT IN the set of accounts that HAVE cards. However, often in these automated benchmarks, the provided \"Hint\" and simple Left Join pattern is the expected \"correct\" path, potentially assuming 1-to-1 or ignoring the multi-disposition complexity, OR the question implies counting the *dispositions* (clients) rather than accounts? \"Account holders\" usually maps to clients or accounts. Let's look at the example solution style. It tends to be direct. If I change it to `COUNT(DISTINCT T1.account_id)`, it fixes the double-counting of accounts with multiple card-less dispositions. Does it fix the \"has one card, one without\" issue? No. Let's try a subquery approach or `NOT EXISTS`? `SELECT COUNT(*) FROM account T1 JOIN district T2 ... WHERE T2.A3 = 'South Bohemia' AND T1.account_id NOT IN (SELECT T3.account_id FROM disp T3 JOIN card T4 ON T3.disp_id = T4.disp_id)` But the instruction says \"Fix the given SQLite SQL QUERY\". It implies minor corrections. Let's look at the specific phrasing: \"How many of the account holders...\". If we assume the standard simplified model where we just want to count the entries that don't have a match: Let's check if `DISTINCT` is the main missing piece. If I have Account 100. Disp 1 (Owner) -> No Card. Disp 2 (Disponent) -> No Card. Query returns 2 rows for Account 100. Count = 2. Real answer should be 1 account (or 2 holders?). \"Account holders\" could mean the people (clients). If it means clients, we should count `client_id` or `disp_id`. If it means accounts, we count `account_id`. Given the ambiguity, `COUNT(DISTINCT T1.account_id)` is safer for \"How many accounts\". However, there is a more subtle issue. The question asks about \"account holders\". In the `disp` table, `type` can be OWNER, DISPONENT, etc. Usually, \"Account Holder\" implies the OWNER. But the question doesn't specify filtering by type. Let's stick to the most likely intended correction for this specific benchmark style: The query structure `LEFT JOIN ... WHERE ... IS NULL` is the standard pattern for \"Find X that does not have Y\". The main potential error is counting duplicates if an account has multiple dispositions without cards. Let's verify the `A3` value. The hint says \"South Bohemia is one of region names\". In the sample data, `A3` for district 1 is \"Prague\", for 2 is \"central Bohemia\". \"South Bohemia\" is likely a valid value",
+    "gold_sql": "SELECT COUNT(T3.account_id) FROM district AS T1 INNER JOIN client AS T2 ON T1.district_id = T2.district_id INNER JOIN disp AS T3 ON T2.client_id = T3.client_id WHERE T1.A3 = 'south Bohemia' AND T3.type != 'OWNER'",
+    "pred_result": {
+      "columns": "ERROR",
+      "n_rows": 0,
+      "error": true
+    },
+    "gold_result": {
+      "columns": [
+        "COUNT(T3.account_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 130
+  },
+  {
+    "db_id": "financial",
+    "question": "In 1996, which districts have the highest unemployment rate? List their branch location and district name.",
+    "evidence": "A2 refers to district names; A13 refers to unemploymant rate in 1996",
+    "predicted_sql": "`SELECT A2, A13`. It lists Name and Rate. It misses Location. - Let's try to interpret \"branch location\" as `A2` and \"district name\" as... wait. In the `district` table, `A2` is \"district_name\". `A3` is \"region\". - Maybe the question considers `A2` as the location? No, it says \"A2 refers to district names\". - Let's assume the question wants `A3` (Location/Region) and `A2` (Name). - Correct Query: `SELECT A3, A2 FROM district ORDER BY A13 DESC LIMIT 1`. *Self-Correction/Refinement*: In many SQL benchmarks for this specific database (Czech Bank), questions about \"districts\" often just want the district name (`A2`). The phrase \"branch location\" might be a loose translation for the district itself or the region. If I must choose between the provided SQL and a corrected one, the provided SQL is definitely missing the \"location\" aspect if it's distinct from the name. However, if \"branch location\" is interpreted as the district name (`A2`) and the question is poorly phrased asking for it twice, or if `A13` was mistakenly included instead of the location. Actually, looking at the hint: \"A2 refers to district names\". It does not define a column for \"branch location\". This is a strong signal. In some contexts, the District Name *is* the location. If the question asks for \"branch location and district name\", and only `A2` is defined as the name, maybe it wants `A2` and something else? Or maybe it just wants `A2`? Let's look at the structure of the provided SQL: `SELECT A2, A13`. The question asks to \"List their branch location and district name\". If I assume `A3` is the branch location (Region), the query should be `SELECT A3, A2`. If I assume the question implies showing the rate as well, it might be `SELECT A3, A2, A13`. However, there is a very common pattern in these auto-generated questions where \"location\" might refer to the `district_id` or just the name. But given `A3` exists and is \"Region\", it is the best candidate for \"Location\"",
+    "gold_sql": "SELECT district_id, A2 FROM district ORDER BY A13 DESC LIMIT 1",
+    "pred_result": {
+      "columns": "ERROR",
+      "n_rows": 0,
+      "error": true
+    },
+    "gold_result": {
+      "columns": [
+        "district_id",
+        "A2"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 133
+  },
+  {
+    "db_id": "financial",
+    "question": "Which districts have transactions greater than USS$10,000 in 1997?",
+    "evidence": "",
+    "predicted_sql": "SELECT DISTINCT T3.A2 FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN district AS T3 ON T2.district_id = T3.district_id WHERE T1.amount > 10000 AND T1.date LIKE '1997%'",
+    "gold_sql": "SELECT T1.district_id FROM account AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN trans AS T3 ON T1.account_id = T3.account_id WHERE STRFTIME('%Y', T3.date) = '1997' GROUP BY T1.district_id HAVING SUM(T3.amount) > 10000",
+    "pred_result": {
+      "columns": [
+        "A2"
+      ],
+      "n_rows": 77,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "district_id"
+      ],
+      "n_rows": 77,
+      "error": false
+    },
+    "error_index": 141
+  },
+  {
+    "db_id": "financial",
+    "question": "Which accounts placed orders for household payment in Pisek?",
+    "evidence": "k_symbol = 'SIPO' refers to household payment",
+    "predicted_sql": "SELECT T1.account_id FROM \"order\" AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN district AS T3 ON T2.district_id = T3.district_id WHERE T1.k_symbol = 'SIPO' AND T3.A2 = 'Pisek'",
+    "gold_sql": "SELECT DISTINCT T2.account_id FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN district AS T3 ON T2.district_id = T3.district_id WHERE T1.k_symbol = 'SIPO' AND T3.A2 = 'Pisek'",
+    "pred_result": {
+      "columns": [
+        "account_id"
+      ],
+      "n_rows": 34,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "account_id"
+      ],
+      "n_rows": 32,
+      "error": false
+    },
+    "error_index": 142
+  },
+  {
+    "db_id": "financial",
+    "question": "How much is the average amount in credit card made by account holders in a month, in year 2021?",
+    "evidence": "Operation = 'VYBER KARTOU' refers to credit card withdrawn",
+    "predicted_sql": "SELECT AVG(amount) FROM trans WHERE operation = 'VYBER KARTOU' AND strftime('%Y', date) = '2021'",
+    "gold_sql": "SELECT AVG(T4.amount) FROM card AS T1 INNER JOIN disp AS T2 ON T1.disp_id = T2.disp_id INNER JOIN account AS T3 ON T2.account_id = T3.account_id INNER JOIN trans AS T4 ON T3.account_id = T4.account_id WHERE STRFTIME('%Y', T4.date) = '1998' AND T4.operation = 'VYBER KARTOU'",
+    "pred_result": {
+      "columns": [
+        "AVG(amount)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "AVG(T4.amount)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 144
+  },
+  {
+    "db_id": "financial",
+    "question": "Who are the account holder identification numbers whose who have transactions on the credit card with the amount is less than the average, in 1998?",
+    "evidence": "Operation = 'VYBER KARTOU' refers to credit card withdrawal",
+    "predicted_sql": "SELECT DISTINCT account_id FROM trans WHERE operation = 'VYBER KARTOU' AND strftime('%Y', date) = '1998' AND amount < (SELECT AVG(amount) FROM trans WHERE operation = 'VYBER KARTOU' AND strftime('%Y', date) = '1998')",
+    "gold_sql": "SELECT T1.account_id FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE STRFTIME('%Y', T1.date) = '1998' AND T1.operation = 'VYBER KARTOU' AND T1.amount < (SELECT AVG(amount) FROM trans WHERE STRFTIME('%Y', date) = '1998')",
+    "pred_result": {
+      "columns": [
+        "account_id"
+      ],
+      "n_rows": 660,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "account_id"
+      ],
+      "n_rows": 4484,
+      "error": false
+    },
+    "error_index": 145
+  },
+  {
+    "db_id": "financial",
+    "question": "Please list the account types that are not eligible for loans, and the average income of residents in the district where the account is located exceeds $8000 but is no more than $9000.",
+    "evidence": "A11 represents the average salary; Salary and income share the similar meanings; when the account type = 'OWNER', it's eligible for loans",
+    "predicted_sql": "SELECT DISTINCT T1.type FROM disp AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN district AS T3 ON T2.district_id = T3.district_id WHERE T1.type != 'OWNER' AND T3.A11 > 8000 AND T3.A11 <= 9000",
+    "gold_sql": "SELECT T3.type FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id INNER JOIN disp AS T3 ON T2.account_id = T3.account_id WHERE T3.type != 'OWNER' AND T1.A11 BETWEEN 8000 AND 9000",
+    "pred_result": {
+      "columns": [
+        "type"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "type"
+      ],
+      "n_rows": 461,
+      "error": false
+    },
+    "error_index": 149
+  },
+  {
+    "db_id": "financial",
+    "question": "How many accounts in North Bohemia has made a transaction with the partner's bank being AB?",
+    "evidence": "A3 contains the region names; North Bohemia is a region.",
+    "predicted_sql": "SELECT COUNT(*) FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN district AS T3 ON T2.district_id = T3.district_id WHERE T3.A3 = 'North Bohemia' AND T1.bank = 'AB'",
+    "gold_sql": "SELECT COUNT(T2.account_id) FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id INNER JOIN trans AS T3 ON T2.account_id = T3.account_id WHERE T3.bank = 'AB' AND T1.A3 = 'north Bohemia'",
+    "pred_result": {
+      "columns": [
+        "COUNT(*)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "COUNT(T2.account_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 150
+  },
+  {
+    "db_id": "financial",
+    "question": "What was the growth rate of the total amount of loans across all accounts for a male client between 1996 and 1997?",
+    "evidence": "Growth rate = (sum of amount_1997 - sum of amount_1996) / (sum of amount_1996) * 100%; Male refers to gender = 'M'",
+    "predicted_sql": "SELECT (SUM(CASE WHEN strftime('%Y', T1.date) = '1997' THEN T1.amount ELSE 0 END) * 1.0 - SUM(CASE WHEN strftime('%Y', T1.date) = '1996' THEN T1.amount ELSE 0 END)) / SUM(CASE WHEN strftime('%Y', T1.date) = '1996' THEN T1.amount ELSE 0 END) * 100 FROM loan AS T1 JOIN account AS T2 ON T1.account_id = T2.account_id JOIN disp AS T3 ON T2.account_id = T3.account_id JOIN client AS T4 ON T3.client_id = T4.client_id WHERE T4.gender = 'M' AND strftime('%Y', T1.date) IN ('1996', '1997')",
+    "gold_sql": "SELECT CAST((SUM(CASE WHEN STRFTIME('%Y', T1.date) = '1997' THEN T1.amount ELSE 0 END) - SUM(CASE WHEN STRFTIME('%Y', T1.date) = '1996' THEN T1.amount ELSE 0 END)) AS REAL) * 100 / SUM(CASE WHEN STRFTIME('%Y', T1.date) = '1996' THEN T1.amount ELSE 0 END) FROM loan AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN disp AS T3 ON T3.account_id = T2.account_id INNER JOIN client AS T4 ON T4.client_id = T3.client_id WHERE T4.gender = 'M' AND T3.type = 'OWNER'",
+    "pred_result": {
+      "columns": [
+        "(SUM(CASE WHEN strftime('%Y', T1.date) = '1997' THEN T1.amount ELSE 0 END) * 1.0 - SUM(CASE WHEN strftime('%Y', T1.date) = '1996' THEN T1.amount ELSE 0 END)) / SUM(CASE WHEN strftime('%Y', T1.date) = '1996' THEN T1.amount ELSE 0 END) * 100"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "CAST((SUM(CASE WHEN STRFTIME('%Y', T1.date) = '1997' THEN T1.amount ELSE 0 END) - SUM(CASE WHEN STRFTIME('%Y', T1.date) = '1996' THEN T1.amount ELSE 0 END)) AS REAL) * 100 / SUM(CASE WHEN STRFTIME('%Y', T1.date) = '1996' THEN T1.amount ELSE 0 END)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 169
+  },
+  {
+    "db_id": "financial",
+    "question": "What was the difference in the number of crimes committed in East and North Bohemia in 1996?",
+    "evidence": "Difference in no. of committed crimes between 2 regions = Total no. of committed crimes in 1996 in north Bohemia - Total no. of committed crimes in 1996 in e ast Bohemia. A3 refers to region. Data about no. of committed crimes 1996 appears in A16",
+    "predicted_sql": "SELECT (SELECT SUM(A16) FROM district WHERE A3 = 'north Bohemia') - (SELECT SUM(A16) FROM district WHERE A3 = 'east Bohemia')",
+    "gold_sql": "SELECT SUM(IIF(A3 = 'east Bohemia', A16, 0)) - SUM(IIF(A3 = 'north Bohemia', A16, 0)) FROM district",
+    "pred_result": {
+      "columns": [
+        "(SELECT SUM(A16) FROM district WHERE A3 = 'north Bohemia') - (SELECT SUM(A16) FROM district WHERE A3 = 'east Bohemia')"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "SUM(IIF(A3 = 'east Bohemia', A16, 0)) - SUM(IIF(A3 = 'north Bohemia', A16, 0))"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 171
+  },
+  {
+    "db_id": "financial",
+    "question": "How many owner and disponent dispositions are there from account number 1 to account number 10?",
+    "evidence": "",
+    "predicted_sql": "SELECT COUNT(*) FROM disp WHERE account_id BETWEEN 1 AND 10 AND type IN ('OWNER', 'DISPONENT')",
+    "gold_sql": "SELECT SUM(type = 'OWNER') , SUM(type = 'DISPONENT') FROM disp WHERE account_id BETWEEN 1 AND 10",
+    "pred_result": {
+      "columns": [
+        "COUNT(*)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "SUM(type = 'OWNER')",
+        "SUM(type = 'DISPONENT')"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 172
+  },
+  {
+    "db_id": "financial",
+    "question": "Please provide a list of clients who were born between 1983 and 1987 and whose account branch is in East Bohemia, along with their IDs.",
+    "evidence": "",
+    "predicted_sql": "SELECT T1.client_id FROM client AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id WHERE T2.A3 = 'east Bohemia' AND CAST(SUBSTR(T1.birth_date, 1, 4) AS INTEGER) BETWEEN 1983 AND 1987",
+    "gold_sql": "SELECT T1.client_id, T3.account_id FROM client AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN disp AS T4 ON T1.client_id = T4.client_id INNER JOIN account AS T3 ON T2.district_id = T3.district_id and T4.account_id = T3.account_id WHERE T2.A3 = 'east Bohemia' AND STRFTIME('%Y', T1.birth_date) BETWEEN '1983' AND '1987'",
+    "pred_result": {
+      "columns": [
+        "client_id"
+      ],
+      "n_rows": 3,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "client_id",
+        "account_id"
+      ],
+      "n_rows": 3,
+      "error": false
+    },
+    "error_index": 180
+  },
+  {
+    "db_id": "financial",
+    "question": "How many male customers who were born between 1974 and 1976 have made a payment on their home in excess of $4000?",
+    "evidence": "Man and male refers to gender = 'M'; 'SIPO' stands for household payment",
+    "predicted_sql": "SELECT COUNT(*) FROM client AS T1 INNER JOIN disp AS T2 ON T1.client_id = T2.client_id INNER JOIN \"order\" AS T3 ON T2.account_id = T3.account_id WHERE T1.gender = 'M' AND strftime('%Y', T1.birth_date) BETWEEN '1974' AND '1976' AND T3.k_symbol = 'SIPO' AND T3.amount > 4000",
+    "gold_sql": "SELECT COUNT(T1.account_id) FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN disp AS T4 ON T2.account_id = T4.account_id INNER JOIN client AS T3 ON T4.client_id = T3.client_id WHERE STRFTIME('%Y', T3.birth_date) BETWEEN '1974' AND '1976' AND T3.gender = 'M' AND T1.amount > 4000 AND T1.k_symbol = 'SIPO'",
+    "pred_result": {
+      "columns": [
+        "COUNT(*)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "COUNT(T1.account_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 182
+  },
+  {
+    "db_id": "financial",
+    "question": "What proportion of customers who have accounts at the Prague branch are female?",
+    "evidence": "Female refers to gender = 'F'; Percentage of female clients in Prague branch = count[female clients with accounts in Prague branch / count(clients with accounts in Prague branch)] * 100%; A3 may contain information about Prague",
+    "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.gender = 'F' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM client AS T1 INNER JOIN disp AS T2 ON T1.client_id = T2.client_id INNER JOIN account AS T3 ON T2.account_id = T3.account_id INNER JOIN district AS T4 ON T3.district_id = T4.district_id WHERE T4.A3 = 'Prague'",
+    "gold_sql": "SELECT CAST(SUM(T2.gender = 'F') AS REAL) / COUNT(T2.client_id) * 100 FROM district AS T1 INNER JOIN client AS T2 ON T1.district_id = T2.district_id WHERE T1.A3 = 'Prague'",
+    "pred_result": {
+      "columns": [
+        "CAST(SUM(CASE WHEN T1.gender = 'F' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "CAST(SUM(T2.gender = 'F') AS REAL) / COUNT(T2.client_id) * 100"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 185
+  },
+  {
+    "db_id": "financial",
+    "question": "What percentage of male clients request for weekly statements to be issued?",
+    "evidence": "Percentage of male clients = [count(male clients who requested weekly statements / count(clients who requested weekly statements)] * 100%; Male means gender = 'M'; 'POPLATEK TYDNE' stands for weekly issuance",
+    "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.gender = 'M' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM client AS T1 JOIN disp AS T2 ON T1.client_id = T2.client_id JOIN account AS T3 ON T2.account_id = T3.account_id WHERE T3.frequency = 'POPLATEK TYDNE'",
+    "gold_sql": "SELECT CAST(SUM(T1.gender = 'M') AS REAL) * 100 / COUNT(T1.client_id) FROM client AS T1 INNER JOIN district AS T3 ON T1.district_id = T3.district_id INNER JOIN account AS T2 ON T2.district_id = T3.district_id INNER JOIN disp as T4 on T1.client_id = T4.client_id AND T2.account_id = T4.account_id WHERE T2.frequency = 'POPLATEK TYDNE'",
+    "pred_result": {
+      "columns": [
+        "CAST(SUM(CASE WHEN T1.gender = 'M' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "CAST(SUM(T1.gender = 'M') AS REAL) * 100 / COUNT(T1.client_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 186
+  },
+  {
+    "db_id": "financial",
+    "question": "Name the account numbers of female clients who are oldest and have lowest average salary?",
+    "evidence": "Female refers to 'F' in the gender; A11 contains information about average salary",
+    "predicted_sql": "SELECT T2.account_id FROM client AS T1 INNER JOIN disp AS T2 ON T1.client_id = T2.client_id WHERE T1.gender = 'F' AND T1.district_id = ( SELECT district_id FROM district ORDER BY A11 ASC LIMIT 1 ) ORDER BY T1.birth_date ASC LIMIT 1",
+    "gold_sql": "SELECT T3.account_id FROM client AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN account AS T3 ON T2.district_id = T3.district_id INNER JOIN disp AS T4 ON T1.client_id = T4.client_id AND T4.account_id = T3.account_id  WHERE T1.gender = 'F' ORDER BY T1.birth_date ASC, T2.A11 ASC LIMIT 1",
+    "pred_result": {
+      "columns": [
+        "account_id"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "account_id"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 189
+  },
+  {
+    "db_id": "financial",
+    "question": "List all ID and district for clients that can only have the right to issue permanent orders or apply for loans.",
+    "evidence": "Only the owner accounts have the right to issue permanent orders or apply for loans",
+    "predicted_sql": "SELECT T1.client_id, T1.district_id FROM client AS T1 INNER JOIN disp AS T2 ON T1.client_id = T2.client_id WHERE T2.type = 'OWNER'",
+    "gold_sql": "SELECT T3.client_id, T2.district_id, T2.A2 FROM account AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN disp AS T3 ON T1.account_id = T3.account_id WHERE T3.type = 'OWNER'",
+    "pred_result": {
+      "columns": [
+        "client_id",
+        "district_id"
+      ],
+      "n_rows": 4500,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "client_id",
+        "district_id",
+        "A2"
+      ],
+      "n_rows": 4500,
+      "error": false
+    },
+    "error_index": 193
+  },
+  {
+    "db_id": "financial",
+    "question": "Provide the IDs and age of the client with high level credit card, which is eligible for loans.",
+    "evidence": "the credit card is high-level refers to card.type = 'gold'; eligible for loans refers to disp.type = 'OWNER'",
+    "predicted_sql": "SELECT T1.client_id, CAST((julianday('now') - julianday(T1.birth_date)) / 365.25 AS INTEGER) AS age FROM client AS T1 INNER JOIN disp AS T2 ON T1.client_id = T2.client_id INNER JOIN card AS T3 ON T2.disp_id = T3.disp_id WHERE T3.type = 'gold' AND T2.type = 'OWNER'",
+    "gold_sql": "SELECT T1.client_id, STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T3.birth_date) FROM disp AS T1 INNER JOIN card AS T2 ON T2.disp_id = T1.disp_id INNER JOIN client AS T3 ON T1.client_id = T3.client_id WHERE T2.type = 'gold' AND T1.type = 'OWNER'",
+    "pred_result": {
+      "columns": [
+        "client_id",
+        "age"
+      ],
+      "n_rows": 88,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "client_id",
+        "STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T3.birth_date)"
+      ],
+      "n_rows": 88,
+      "error": false
+    },
+    "error_index": 194
+  },
+  {
+    "db_id": "toxicology",
+    "question": "Calculate the average number of oxygen atoms in single-bonded molecules.",
+    "evidence": "single-bonded molecules refers to bond_type = '-' ; average number of oxygen atom = AVG(element = 'o')",
+    "predicted_sql": "SELECT AVG(oxygen_count) FROM ( SELECT T2.molecule_id, COUNT(T1.atom_id) AS oxygen_count FROM ( SELECT DISTINCT molecule_id FROM bond WHERE bond_type = '-' ) AS T2 LEFT JOIN atom AS T1 ON T2.molecule_id = T1.molecule_id AND T1.element = 'o' GROUP BY T2.molecule_id )",
+    "gold_sql": "SELECT AVG(oxygen_count) FROM (SELECT T1.molecule_id, COUNT(T1.element) AS oxygen_count FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id  WHERE T2.bond_type = '-' AND T1.element = 'o'  GROUP BY T1.molecule_id) AS oxygen_counts",
+    "pred_result": {
+      "columns": [
+        "AVG(oxygen_count)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "AVG(oxygen_count)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 197
+  },
+  {
+    "db_id": "toxicology",
+    "question": "On average how many carcinogenic molecules are single bonded?",
+    "evidence": "carcinogenic molecules refers to label = '+'; single-bonded refers to bond_type = '-'; average = DIVIDE(SUM(bond_type = '-'), COUNT(atom_id))",
+    "predicted_sql": "SELECT CAST(SUM(CASE WHEN T2.bond_type = '-' THEN 1 ELSE 0 END) AS REAL) / (SELECT COUNT(*) FROM atom T3 JOIN molecule T4 ON T3.molecule_id = T4.molecule_id WHERE T4.label = '+') FROM molecule T1 JOIN bond T2 ON T1.molecule_id = T2.molecule_id WHERE T1.label = '+'",
+    "gold_sql": "SELECT AVG(single_bond_count) FROM (SELECT T3.molecule_id, COUNT(T1.bond_type) AS single_bond_count FROM bond AS T1  INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN molecule AS T3 ON T3.molecule_id = T2.molecule_id WHERE T1.bond_type = '-' AND T3.label = '+' GROUP BY T3.molecule_id) AS subquery",
+    "pred_result": {
+      "columns": [
+        "CAST(SUM(CASE WHEN T2.bond_type = '-' THEN 1 ELSE 0 END) AS REAL) / (SELECT COUNT(*) FROM atom T3 JOIN molecule T4 ON T3.molecule_id = T4.molecule_id WHERE T4.label = '+')"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "AVG(single_bond_count)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 198
+  },
+  {
+    "db_id": "toxicology",
+    "question": "What is the percentage of carbon in double-bond molecules?",
+    "evidence": "carbon refers to element = 'c'; double-bond molecules refers to bond_type = '='; percentage = DIVIDE(SUM(element = 'c'), COUNT(atom_id))",
+    "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.element = 'c' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id INNER JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_type = '='",
+    "gold_sql": "SELECT CAST(COUNT(DISTINCT CASE WHEN T1.element = 'c' THEN T1.atom_id ELSE NULL END) AS REAL) * 100 / COUNT(DISTINCT T1.atom_id) FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.bond_type = '='",
+    "pred_result": {
+      "columns": [
+        "CAST(SUM(CASE WHEN T1.element = 'c' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "CAST(COUNT(DISTINCT CASE WHEN T1.element = 'c' THEN T1.atom_id ELSE NULL END) AS REAL) * 100 / COUNT(DISTINCT T1.atom_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 201
+  },
+  {
+    "db_id": "toxicology",
+    "question": "Identify by their ID the molecules in which there is carbon.",
+    "evidence": "carbon refers to element = 'c';",
+    "predicted_sql": "SELECT DISTINCT T1.molecule_id FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.element = 'c'",
+    "gold_sql": "SELECT T.molecule_id FROM atom AS T WHERE T.element = 'c'",
+    "pred_result": {
+      "columns": [
+        "molecule_id"
+      ],
+      "n_rows": 340,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "molecule_id"
+      ],
+      "n_rows": 4605,
+      "error": false
+    },
+    "error_index": 205
+  },
+  {
+    "db_id": "toxicology",
+    "question": "What elements are in the TR004_8_9 bond atoms?",
+    "evidence": "TR004_8_9 bond atoms refers to bond_id = 'TR004_8_9';",
+    "predicted_sql": "SELECT T2.element, T3.element FROM connected AS T1 JOIN atom AS T2 ON T1.atom_id = T2.atom_id JOIN atom AS T3 ON T1.atom_id2 = T3.atom_id WHERE T1.bond_id = 'TR004_8_9'",
+    "gold_sql": "SELECT DISTINCT T1.element FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T2.bond_id = 'TR004_8_9'",
+    "pred_result": {
+      "columns": [
+        "element",
+        "element"
+      ],
+      "n_rows": 2,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "element"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 206
+  },
+  {
+    "db_id": "toxicology",
+    "question": "What elements are in a double type bond?",
+    "evidence": "double type bond refers to bond_type = '=';",
+    "predicted_sql": "SELECT DISTINCT T1.element FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id INNER JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_type = '='",
+    "gold_sql": "SELECT DISTINCT T1.element FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN connected AS T3 ON T1.atom_id = T3.atom_id WHERE T2.bond_type = '='",
+    "pred_result": {
+      "columns": [
+        "element"
+      ],
+      "n_rows": 5,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "element"
+      ],
+      "n_rows": 14,
+      "error": false
+    },
+    "error_index": 207
+  },
+  {
+    "db_id": "toxicology",
+    "question": "Indicate which atoms are connected in non-carcinogenic type molecules.",
+    "evidence": "label = '-' means molecules are non-carcinogenic",
+    "predicted_sql": "SELECT DISTINCT T1.atom_id, T1.atom_id2 FROM connected AS T1 INNER JOIN atom AS T2 ON T1.atom_id = T2.atom_id INNER JOIN molecule AS T3 ON T2.molecule_id = T3.molecule_id WHERE T3.label = '-'",
+    "gold_sql": "SELECT DISTINCT T1.atom_id FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN connected AS T3 ON T1.atom_id = T3.atom_id WHERE T2.label = '-'",
+    "pred_result": {
+      "columns": [
+        "atom_id",
+        "atom_id2"
+      ],
+      "n_rows": 10882,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "atom_id"
+      ],
+      "n_rows": 5399,
+      "error": false
+    },
+    "error_index": 211
+  },
+  {
+    "db_id": "toxicology",
+    "question": "How many atoms with iodine and with sulfur type elements are there in single bond molecules?",
+    "evidence": "with iodine element refer to element = 'i'; with sulfur element refers to element = 's'; single type bond refers to bond_type = '-'; Should consider the distinct atoms when counting;",
+    "predicted_sql": "SELECT COUNT(DISTINCT T1.atom_id) FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id INNER JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T1.element IN ('i', 's') AND T3.bond_type = '-'",
+    "gold_sql": "SELECT COUNT(DISTINCT CASE WHEN T1.element = 'i' THEN T1.atom_id ELSE NULL END) AS iodine_nums , COUNT(DISTINCT CASE WHEN T1.element = 's' THEN T1.atom_id ELSE NULL END) AS sulfur_nums FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id INNER JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_type = '-'",
+    "pred_result": {
+      "columns": [
+        "COUNT(DISTINCT T1.atom_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "iodine_nums",
+        "sulfur_nums"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 215
+  },
+  {
+    "db_id": "toxicology",
+    "question": "Identify all the atoms that are connected to the atoms of the TR181 molecule.",
+    "evidence": "TR181 molecule refers to molecule_id = 'TR181'",
+    "predicted_sql": "SELECT T2.atom_id2 FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T1.molecule_id = 'TR181' UNION SELECT T2.atom_id FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id2 WHERE T1.molecule_id = 'TR181'",
+    "gold_sql": "SELECT T2.atom_id, T2.atom_id2 FROM atom AS T1 INNER JOIN connected AS T2 ON T2.atom_id = T1.atom_id WHERE T1.molecule_id = 'TR181'",
+    "pred_result": {
+      "columns": [
+        "atom_id2"
+      ],
+      "n_rows": 40,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "atom_id",
+        "atom_id2"
+      ],
+      "n_rows": 82,
+      "error": false
+    },
+    "error_index": 217
+  },
+  {
+    "db_id": "toxicology",
+    "question": "What percentage of carcinogenic-type molecules does not contain fluorine?",
+    "evidence": "label = '+' mean molecules are carcinogenic; contain fluorine refers to element = 'f'; percentage = DIVIDE(SUM(element = 'f') * 100, COUNT(molecule_id)) where label = '+'; Should consider the distinct atoms when counting;",
+    "predicted_sql": "SELECT CAST( ( (SELECT COUNT(DISTINCT molecule_id) FROM molecule WHERE label = '+') - (SELECT COUNT(DISTINCT m.molecule_id) FROM molecule m INNER JOIN atom a ON m.molecule_id = a.molecule_id WHERE m.label = '+' AND a.element = 'f') ) AS REAL ) * 100 / (SELECT COUNT(DISTINCT molecule_id) FROM molecule WHERE label = '+')",
+    "gold_sql": "SELECT CAST(COUNT(DISTINCT CASE WHEN T1.element <> 'f' THEN T2.molecule_id ELSE NULL END) AS REAL) * 100 / COUNT(DISTINCT T2.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '+'",
+    "pred_result": {
+      "columns": [
+        "CAST( ( (SELECT COUNT(DISTINCT molecule_id) FROM molecule WHERE label = '+') - (SELECT COUNT(DISTINCT m.molecule_id) FROM molecule m INNER JOIN atom a ON m.molecule_id = a.molecule_id WHERE m.label = '+' AND a.element = 'f') ) AS REAL ) * 100 / (SELECT COUNT(DISTINCT molecule_id) FROM molecule WHERE label = '+')"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "CAST(COUNT(DISTINCT CASE WHEN T1.element <> 'f' THEN T2.molecule_id ELSE NULL END) AS REAL) * 100 / COUNT(DISTINCT T2.molecule_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 218
+  },
+  {
+    "db_id": "toxicology",
+    "question": "What is the percentage of carcinogenic molecules in triple type bonds?",
+    "evidence": "label = '+' mean molecules are carcinogenic; triple bond refers to bond_type = '#'; percentage = DIVIDE(SUM(bond_type = '#') * 100, COUNT(bond_id)) as percent where label = '+'",
+    "predicted_sql": "SELECT CAST(SUM(CASE WHEN T2.bond_type = '#' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM molecule AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.label = '+'",
+    "gold_sql": "SELECT CAST(COUNT(DISTINCT CASE WHEN T2.label = '+' THEN T2.molecule_id ELSE NULL END) AS REAL) * 100 / COUNT(DISTINCT T2.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN bond AS T3 ON T2.molecule_id = T3.molecule_id WHERE T3.bond_type = '#'",
+    "pred_result": {
+      "columns": [
+        "CAST(SUM(CASE WHEN T2.bond_type = '#' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "CAST(COUNT(DISTINCT CASE WHEN T2.label = '+' THEN T2.molecule_id ELSE NULL END) AS REAL) * 100 / COUNT(DISTINCT T2.molecule_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 219
+  },
+  {
+    "db_id": "toxicology",
+    "question": "What are the atoms that are bonded in the molecule TR001 with the bond ID of TR001_2_6?",
+    "evidence": "TR001 is the molecule id; TR001_2_6 is the bond id",
+    "predicted_sql": "SELECT T1.atom_id, T1.atom_id2 FROM connected AS T1 INNER JOIN bond AS T2 ON T1.bond_id = T2.bond_id WHERE T2.molecule_id = 'TR001' AND T1.bond_id = 'TR001_2_6'",
+    "gold_sql": "SELECT SUBSTR(T.bond_id, 1, 7) AS atom_id1 , T.molecule_id || SUBSTR(T.bond_id, 8, 2) AS atom_id2 FROM bond AS T WHERE T.molecule_id = 'TR001' AND T.bond_id = 'TR001_2_6'",
+    "pred_result": {
+      "columns": [
+        "atom_id",
+        "atom_id2"
+      ],
+      "n_rows": 2,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "atom_id1",
+        "atom_id2"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 221
+  },
+  {
+    "db_id": "toxicology",
+    "question": "What are the atom IDs of the bond TR000_2_5?",
+    "evidence": "TR000_2_5 is the bond id",
+    "predicted_sql": "SELECT atom_id, atom_id2 FROM connected WHERE bond_id = 'TR000_2_5'",
+    "gold_sql": "SELECT T.atom_id FROM connected AS T WHERE T.bond_id = 'TR000_2_5'",
+    "pred_result": {
+      "columns": [
+        "atom_id",
+        "atom_id2"
+      ],
+      "n_rows": 2,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "atom_id"
+      ],
+      "n_rows": 2,
+      "error": false
+    },
+    "error_index": 223
+  },
+  {
+    "db_id": "toxicology",
+    "question": "Please list top five molecules that have double bonds in alphabetical order.",
+    "evidence": "double bond refers to bond_type = ' = ';",
+    "predicted_sql": "SELECT T1.molecule_id FROM molecule AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.bond_type = '=' ORDER BY T1.molecule_id ASC LIMIT 5",
+    "gold_sql": "SELECT DISTINCT T.molecule_id FROM bond AS T WHERE T.bond_type = '=' ORDER BY T.molecule_id LIMIT 5",
+    "pred_result": {
+      "columns": [
+        "molecule_id"
+      ],
+      "n_rows": 5,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "molecule_id"
+      ],
+      "n_rows": 5,
+      "error": false
+    },
+    "error_index": 225
+  },
+  {
+    "db_id": "toxicology",
+    "question": "Which bond type accounted for the majority of the bonds found in molecule TR010 and state whether or not this molecule is carcinogenic?",
+    "evidence": "TR010 is the molecule id; majority of the bond found refers to MAX(COUNT(bond_type)); ",
+    "predicted_sql": "SELECT T1.bond_type, T2.label FROM bond AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.molecule_id = 'TR010' GROUP BY T1.bond_type, T2.label ORDER BY COUNT(T1.bond_type) DESC LIMIT 1",
+    "gold_sql": "SELECT T.bond_type FROM ( SELECT T1.bond_type, COUNT(T1.molecule_id) FROM bond AS T1  WHERE T1.molecule_id = 'TR010' GROUP BY T1.bond_type ORDER BY COUNT(T1.molecule_id) DESC LIMIT 1 ) AS T",
+    "pred_result": {
+      "columns": [
+        "bond_type",
+        "label"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "bond_type"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 231
+  },
+  {
+    "db_id": "toxicology",
+    "question": "How many bonds which involved atom 12 does molecule TR009 have?",
+    "evidence": "TR009 is the molecule id;  involved atom 12 refers to atom_id = 'TR009_12' or atom_id2 = 'TR009_12'",
+    "predicted_sql": "SELECT COUNT(*) FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T1.molecule_id = 'TR009' AND (T2.atom_id = 'TR009_12' OR T2.atom_id2 = 'TR009_12')",
+    "gold_sql": "SELECT COUNT(T2.bond_id) FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T1.molecule_id = 'TR009' AND T2.atom_id = T1.molecule_id || '_1' AND T2.atom_id2 = T1.molecule_id || '_2'",
+    "pred_result": {
+      "columns": [
+        "COUNT(*)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "COUNT(T2.bond_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 234
+  },
+  {
+    "db_id": "toxicology",
+    "question": "Which molecule does the atom TR001_10 belong to? Please state whether this molecule is carcinogenic or not.",
+    "evidence": "TR001_10 is the atom id; label = '+' mean molecules are carcinogenic",
+    "predicted_sql": "SELECT T2.molecule_id, T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.atom_id = 'TR001_10'",
+    "gold_sql": "SELECT T2.molecule_id , IIF(T2.label = '+', 'YES', 'NO') AS flag_carcinogenic FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.atom_id = 'TR001_10'",
+    "pred_result": {
+      "columns": [
+        "molecule_id",
+        "label"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "molecule_id",
+        "flag_carcinogenic"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 237
+  },
+  {
+    "db_id": "toxicology",
+    "question": "How many connections does the atom 19 have?",
+    "evidence": "connections refers to bond_id; atom 19 refers to atom_id like 'TR%_19';",
+    "predicted_sql": "SELECT COUNT(bond_id) FROM connected WHERE atom_id LIKE 'TR%_19' OR atom_id2 LIKE 'TR%_19'",
+    "gold_sql": "SELECT COUNT(T.bond_id) FROM connected AS T WHERE SUBSTR(T.atom_id, -2) = '19'",
+    "pred_result": {
+      "columns": [
+        "COUNT(bond_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "COUNT(T.bond_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 239
+  },
+  {
+    "db_id": "toxicology",
+    "question": "List all the elements of the toxicology of the molecule \"TR004\".",
+    "evidence": "TR004 is the molecule id;",
+    "predicted_sql": "SELECT element FROM atom WHERE molecule_id = 'TR004'",
+    "gold_sql": "SELECT DISTINCT T.element FROM atom AS T WHERE T.molecule_id = 'TR004'",
+    "pred_result": {
+      "columns": [
+        "element"
+      ],
+      "n_rows": 24,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "element"
+      ],
+      "n_rows": 6,
+      "error": false
+    },
+    "error_index": 240
+  },
+  {
+    "db_id": "toxicology",
+    "question": "List all the elements of atoms that can not bond with any other atoms.",
+    "evidence": " atoms cannot bond with other atoms means atom_id NOT in connected table;",
+    "predicted_sql": "SELECT DISTINCT element FROM atom WHERE atom_id NOT IN (SELECT atom_id FROM connected) AND atom_id NOT IN (SELECT atom_id2 FROM connected)",
+    "gold_sql": "SELECT DISTINCT T.element FROM atom AS T WHERE T.element NOT IN ( SELECT DISTINCT T1.element FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id )",
+    "pred_result": {
+      "columns": [
+        "element"
+      ],
+      "n_rows": 5,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "element"
+      ],
+      "n_rows": 3,
+      "error": false
+    },
+    "error_index": 247
+  },
+  {
+    "db_id": "toxicology",
+    "question": "What is the least common element of all carcinogenic molecules?",
+    "evidence": "label = '+' mean molecules are carcinogenic",
+    "predicted_sql": "SELECT T1.element FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '+' GROUP BY T1.element ORDER BY COUNT(*) ASC LIMIT 1",
+    "gold_sql": "SELECT T.element FROM ( SELECT T2.element, COUNT(DISTINCT T2.molecule_id) FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.label = '+' GROUP BY T2.element ORDER BY COUNT(DISTINCT T2.molecule_id) LIMIT 1 ) t",
+    "pred_result": {
+      "columns": [
+        "element"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "element"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 251
+  },
+  {
+    "db_id": "toxicology",
+    "question": "What are the atoms that can bond with the atom that has the element lead?",
+    "evidence": "atom that has the element lead refers to atom_id where element = 'pb'",
+    "predicted_sql": "SELECT DISTINCT A2.atom_id FROM atom AS A1 INNER JOIN connected AS C ON A1.atom_id = C.atom_id INNER JOIN atom AS A2 ON C.atom_id2 = A2.atom_id WHERE A1.element = 'pb' UNION SELECT DISTINCT A2.atom_id FROM atom AS A1 INNER JOIN connected AS C ON A1.atom_id = C.atom_id2 INNER JOIN atom AS A2 ON C.atom_id = A2.atom_id WHERE A1.element = 'pb'",
+    "gold_sql": "SELECT T2.atom_id, T2.atom_id2 FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T1.element = 'pb'",
+    "pred_result": {
+      "columns": [
+        "atom_id"
+      ],
+      "n_rows": 4,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "atom_id",
+        "atom_id2"
+      ],
+      "n_rows": 4,
+      "error": false
+    },
+    "error_index": 252
+  },
+  {
+    "db_id": "toxicology",
+    "question": "What percentage of bonds have the most common combination of atoms' elements?",
+    "evidence": "DIVIDE(COUNT(bond_id), COUNT(atom_id where MAX(COUNT(atom_id)) ))",
+    "predicted_sql": "SELECT MAX(sub.cnt) * 100.0 / (SELECT COUNT(*) FROM bond) FROM ( SELECT COUNT(*) as cnt FROM ( SELECT c.bond_id, MIN(a1.element, a2.element) as e1, MAX(a1.element, a2.element) as e2 FROM connected c JOIN atom a1 ON c.atom_id = a1.atom_id JOIN atom a2 ON c.atom_id2 = a2.atom_id GROUP BY c.bond_id ) as bond_element_pairs GROUP BY e1, e2 ) as sub",
+    "gold_sql": "SELECT CAST((SELECT COUNT(T1.atom_id) FROM connected AS T1 INNER JOIN bond AS T2 ON T1.bond_id = T2.bond_id GROUP BY T2.bond_type ORDER BY COUNT(T2.bond_id) DESC LIMIT 1 ) AS REAL) * 100 / ( SELECT COUNT(atom_id) FROM connected )",
+    "pred_result": {
+      "columns": [
+        "MAX(sub.cnt) * 100.0 / (SELECT COUNT(*) FROM bond)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "CAST((SELECT COUNT(T1.atom_id) FROM connected AS T1 INNER JOIN bond AS T2 ON T1.bond_id = T2.bond_id GROUP BY T2.bond_type ORDER BY COUNT(T2.bond_id) DESC LIMIT 1 ) AS REAL) * 100 / ( SELECT COUNT(atom_id) FROM connected )"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 254
+  },
+  {
+    "db_id": "toxicology",
+    "question": "List down atom id2 for atoms with element sulfur.",
+    "evidence": "element sulfur refers to element = 's'",
+    "predicted_sql": "SELECT T1.atom_id2 FROM connected AS T1 INNER JOIN atom AS T2 ON T1.atom_id2 = T2.atom_id WHERE T2.element = 's'",
+    "gold_sql": "SELECT DISTINCT T2.atom_id2 FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T1.element = 's'",
+    "pred_result": {
+      "columns": [
+        "atom_id2"
+      ],
+      "n_rows": 287,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "atom_id2"
+      ],
+      "n_rows": 268,
+      "error": false
+    },
+    "error_index": 257
+  },
+  {
+    "db_id": "toxicology",
+    "question": "How many elements are there for single bond molecules?",
+    "evidence": "single bond refers to bond_type = '-';",
+    "predicted_sql": "SELECT COUNT(DISTINCT T1.element) FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.bond_type = '-'",
+    "gold_sql": "SELECT COUNT(DISTINCT T.element) FROM ( SELECT DISTINCT T2.molecule_id, T1.element FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN bond AS T3 ON T2.molecule_id = T3.molecule_id WHERE T3.bond_type = '-' ) AS T",
+    "pred_result": {
+      "columns": [
+        "COUNT(DISTINCT T1.element)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "COUNT(DISTINCT T.element)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 259
+  },
+  {
+    "db_id": "toxicology",
+    "question": "Calculate the total atoms with triple-bond molecules containing the element phosphorus or bromine.",
+    "evidence": "triple bond refers to bond_type = '#'; phosphorus refers to element = 'p'; bromine refers to element = 'br'",
+    "predicted_sql": "SELECT COUNT(T1.atom_id) FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id INNER JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_type = '#' AND (T1.element = 'p' OR T1.element = 'br')` This query counts atoms (`T1`) that are: 1. Connected via a bond (`connected` table). 2. That bond is a triple bond (`bond_type = '#'`). 3. The atom itself is Phosphorus or Bromine. Does this match the question? \"Calculate the total atoms with triple-bond molecules containing the element phosphorus or bromine.\" Usually, in these types of dataset questions (likely from Spider or similar benchmarks), \"atoms with triple-bond molecules\" often refers to the atoms involved in the relationship defined. However, a stricter interpretation of \"molecules containing...\" would require finding the `molecule_id`s first. Let's re-read carefully: \"total atoms ... containing the element phosphorus or bromine\". If the question meant \"Count all atoms in molecules that have a triple bond and contain P/Br\", the query would be very different (involving subqueries or distinct molecule IDs). However, looking at the structure of the provided SQL, it joins `atom` -> `connected` -> `bond`. This effectively finds atoms that participate in a bond. The filter `T3.bond_type = '#'` restricts it to atoms participating in a triple bond. The filter `T1.element IN ('p', 'br')` restricts it to P or Br atoms. Is there a mismatch? The prompt says \"triple-bond molecules\". This usually implies the *molecule* has a triple bond. And the molecule *contains* P or Br. If the question implies counting *all* atoms in such molecules, the current query is wrong because it only counts the P/Br atoms that are in triple bonds. Let's look at standard interpretations for this specific schema/dataset (likely Tox21 or similar chemical DB). Often, questions like \"How many atoms of type X are in molecules with property Y?\" require joining to find the molecules, then counting the atoms. But let's look at the phrasing again: \"Calculate the total atoms with triple-bond molecules containing the element phosphorus or bromine.\" This is grammatically poor. It likely means: \"Count the number of atoms that are either Phosphorus or Bromine, which are part of a triple bond, in molecules that contain these elements.\" Or simpler: \"Count the P or Br atoms that form a triple bond.\" Let's check the joins. `atom` T1 joined to `connected` T2 on `atom_id`. `connected` T2 joined to `bond` T3 on `bond_id`. This path identifies atoms involved in bonds. If the question intended to count *all* atoms in molecules that have a triple bond and contain P/Br, the query would need to: 1. Find `molecule_id`s where `bond_type = '#'`. 2. Find `molecule_id`s where `element = 'p'` or `element = 'br'`. 3. Intersect these molecule IDs. 4. Count all atoms in those molecules. The provided query does NOT do this. It counts specific atoms (P or Br) that are directly involved in a triple bond. Let's consider the phrase \"atoms with triple-bond molecules\". This might be a typo for \"atoms in triple bonds\". If we assume the question asks for \"Count the number of Phosphorus or Bromine atoms that are involved in a triple bond\", the provided SQL is correct. However, if we look at similar examples in this dataset style, \"containing the element...\" usually acts as a filter for the molecule. Let's look at the Hint: \"triple bond refers to bond_type = '#'",
+    "gold_sql": "SELECT COUNT(T1.atom_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN bond AS T3 ON T2.molecule_id = T3.molecule_id WHERE T3.bond_type = '#' AND T1.element IN ('p', 'br')",
+    "pred_result": {
+      "columns": "ERROR",
+      "n_rows": 0,
+      "error": true
+    },
+    "gold_result": {
+      "columns": [
+        "COUNT(T1.atom_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 260
+  },
+  {
+    "db_id": "toxicology",
+    "question": "What is the composition of element chlorine in percentage among the single bond molecules?",
+    "evidence": "element chlorine refers to element = 'cl'; single bond refers to bond_type = '-'; percentage = DIVIDE(SUM(element = 'cl'), COUNT(atom_id)) as percent where bond_type = '-'",
+    "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.element = 'cl' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.bond_type = '-'",
+    "gold_sql": "SELECT CAST(COUNT(CASE WHEN T.element = 'cl' THEN T.atom_id ELSE NULL END) AS REAL) * 100 / COUNT(T.atom_id) FROM ( SELECT T1.atom_id, T1.element FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN bond AS T3 ON T2.molecule_id = T3.molecule_id WHERE T3.bond_type = '-' ) AS T",
+    "pred_result": {
+      "columns": [
+        "CAST(SUM(CASE WHEN T1.element = 'cl' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "CAST(COUNT(CASE WHEN T.element = 'cl' THEN T.atom_id ELSE NULL END) AS REAL) * 100 / COUNT(T.atom_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 263
+  },
+  {
+    "db_id": "toxicology",
+    "question": "What are the labels for TR000, TR001 and TR002?",
+    "evidence": "TR000, TR001 and TR002 are molecule id; label = '+' mean molecules are carcinogenic; label = '-' means molecules are non-carcinogenic",
+    "predicted_sql": "SELECT label FROM molecule WHERE molecule_id IN ('TR000', 'TR001', 'TR002')",
+    "gold_sql": "SELECT molecule_id, T.label FROM molecule AS T WHERE T.molecule_id IN ('TR000', 'TR001', 'TR002')",
+    "pred_result": {
+      "columns": [
+        "label"
+      ],
+      "n_rows": 3,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "molecule_id",
+        "label"
+      ],
+      "n_rows": 3,
+      "error": false
+    },
+    "error_index": 264
+  },
+  {
+    "db_id": "toxicology",
+    "question": "List down the bond type for molecules from molecule id TR000 to TR050.",
+    "evidence": "double bond refers to bond_type = ' = '; single bond refers to bond_type = '-'; triple bond refers to bond_type = '#';",
+    "predicted_sql": "SELECT bond_type FROM bond WHERE molecule_id >= 'TR000' AND molecule_id <= 'TR050'",
+    "gold_sql": "SELECT T2.molecule_id, T2.bond_type FROM molecule AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.molecule_id BETWEEN 'TR000' AND 'TR050'",
+    "pred_result": {
+      "columns": [
+        "bond_type"
+      ],
+      "n_rows": 1409,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "molecule_id",
+        "bond_type"
+      ],
+      "n_rows": 1153,
+      "error": false
+    },
+    "error_index": 267
+  },
+  {
+    "db_id": "toxicology",
+    "question": "What are the elements for bond id TR001_10_11?",
+    "evidence": "TR001_10_11 is the bond id;",
+    "predicted_sql": "SELECT T2.element, T3.element FROM connected AS T1 INNER JOIN atom AS T2 ON T1.atom_id = T2.atom_id INNER JOIN atom AS T3 ON T1.atom_id2 = T3.atom_id WHERE T1.bond_id = 'TR001_10_11'",
+    "gold_sql": "SELECT T2.element FROM connected AS T1 INNER JOIN atom AS T2 ON T1.atom_id = T2.atom_id WHERE T1.bond_id = 'TR001_10_11'",
+    "pred_result": {
+      "columns": [
+        "element",
+        "element"
+      ],
+      "n_rows": 2,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "element"
+      ],
+      "n_rows": 2,
+      "error": false
+    },
+    "error_index": 268
+  },
+  {
+    "db_id": "toxicology",
+    "question": "How many bond id have element iodine?",
+    "evidence": "iodine refers to element = 'i'",
+    "predicted_sql": "SELECT COUNT(T1.bond_id) FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id INNER JOIN atom AS T3 ON T2.atom_id = T3.atom_id WHERE T3.element = 'i'",
+    "gold_sql": "SELECT COUNT(T3.bond_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN bond AS T3 ON T2.molecule_id = T3.molecule_id WHERE T1.element = 'i'",
+    "pred_result": {
+      "columns": [
+        "COUNT(T1.bond_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "COUNT(T3.bond_id)"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "error_index": 269
+  },
+  {
+    "db_id": "toxicology",
+    "question": "Does bond id TR001_1_8 have both element of chlorine and carbon?",
+    "evidence": "chlorine refers to element = 'cl'; carbon refers to element = 'c'",
+    "predicted_sql": "SELECT CASE WHEN COUNT(*) > 0 THEN 'yes' ELSE 'no' END FROM bond AS T1 JOIN connected AS T2 ON T1.bond_id = T2.bond_id JOIN atom AS T3 ON T2.atom_id = T3.atom_id JOIN atom AS T4 ON T2.atom_id2 = T4.atom_id WHERE T1.bond_id = 'TR001_1_8' AND ( (T3.element = 'cl' AND T4.element = 'c') OR (T3.element = 'c' AND T4.element = 'cl') )",
+    "gold_sql": "SELECT T2.bond_id, T2.atom_id2, T1.element AS flag_have_CaCl FROM atom AS T1 INNER JOIN connected AS T2 ON T2.atom_id = T1.atom_id WHERE T2.bond_id = 'TR001_1_8' AND (T1.element = 'c1' OR T1.element = 'c')",
+    "pred_result": {
+      "columns": [
+        "CASE WHEN COUNT(*) > 0 THEN 'yes' ELSE 'no' END"
+      ],
+      "n_rows": 1,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "bond_id",
+        "atom_id2",
+        "flag_have_CaCl"
+      ],
+      "n_rows": 2,
+      "error": false
+    },
+    "error_index": 271
+  },
+  {
+    "db_id": "toxicology",
+    "question": "List the toxicology elements associated with molecule TR001.",
+    "evidence": "TR001 is the molecule id",
+    "predicted_sql": "SELECT element FROM atom WHERE molecule_id = 'TR001'",
+    "gold_sql": "SELECT DISTINCT T.element FROM atom AS T WHERE T.molecule_id = 'TR001'",
+    "pred_result": {
+      "columns": [
+        "element"
+      ],
+      "n_rows": 21,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "element"
+      ],
+      "n_rows": 3,
+      "error": false
+    },
+    "error_index": 274
+  },
+  {
+    "db_id": "toxicology",
+    "question": "Tally the toxicology element of the 4th atom of each molecule that was carcinogenic.",
+    "evidence": "label = '+' means molecules are carcinogenic; 4th atom of each molecule refers to substr(atom_id, 7, 1) = '4'; ",
+    "predicted_sql": "SELECT T1.element, COUNT(*) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '+' AND SUBSTR(T1.atom_id, 7, 1) = '4' GROUP BY T1.element",
+    "gold_sql": "SELECT DISTINCT T1.element FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '+' AND SUBSTR(T1.atom_id, -1) = '4' AND LENGTH(T1.atom_id) = 7",
+    "pred_result": {
+      "columns": [
+        "element",
+        "COUNT(*)"
+      ],
+      "n_rows": 9,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "element"
+      ],
+      "n_rows": 8,
+      "error": false
+    },
+    "error_index": 281
+  },
+  {
+    "db_id": "toxicology",
+    "question": "Name chemical elements that form a bond TR001_10_11.",
+    "evidence": "element = 'cl' means Chlorine; element = 'c' means Carbon; element = 'h' means Hydrogen; element = 'o' means Oxygen, element = 's' means Sulfur; element = 'n' means Nitrogen, element = 'p' means Phosphorus, element = 'na' means Sodium, element = 'br' means Bromine, element = 'f' means Fluorine; element = 'i' means Iodine; element = 'sn' means Tin; element = 'pb' means Lead; element = 'te' means Tellurium; element = 'ca' means Calcium; TR001_10_11 is the bond id; molecule id refers to SUBSTR(bond_id, 1, 5); atom 1 refers to SUBSTR(bond_id, 7, 2); atom 2 refers to SUBSTR(bond_id, 10, 2)",
+    "predicted_sql": "SELECT DISTINCT T2.element, T3.element FROM connected AS T1 INNER JOIN atom AS T2 ON T1.atom_id = T2.atom_id INNER JOIN atom AS T3 ON T1.atom_id2 = T3.atom_id WHERE T1.bond_id = 'TR001_10_11'",
+    "gold_sql": "SELECT T1.element FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id INNER JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_id = 'TR001_10_11'",
+    "pred_result": {
+      "columns": [
+        "element",
+        "element"
+      ],
+      "n_rows": 2,
+      "error": false
+    },
+    "gold_result": {
+      "columns": [
+        "element"
+      ],
+      "n_rows": 2,
+      "error": false
+    },
+    "error_index": 285
+  }
+]

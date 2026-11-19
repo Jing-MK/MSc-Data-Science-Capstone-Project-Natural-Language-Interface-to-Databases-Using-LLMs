@@ -1,0 +1,27 @@
+============================================================
+THREE-ARM EVALUATION  (100 cases)
+============================================================
+
+no-correction
+  EX: 0.0% -> 0.0%  (+0.0)
+  N_fix=0  N_break=0  N_net=+0
+  questions asked: 0  (0.00 per query)
+
+fix-always
+  EX: 0.0% -> 2.0%  (+2.0)
+  N_fix=2  N_break=0  N_net=+2
+  questions asked: 0  (0.00 per query)
+
+ask-always
+  EX: 0.0% -> 9.0%  (+9.0)
+  N_fix=9  N_break=0  N_net=+9
+  questions asked: 91  (0.91 per query)
+
+triage (ours)
+  EX: 0.0% -> 9.0%  (+9.0)
+  N_fix=9  N_break=0  N_net=+9
+  questions asked: 90  (0.90 per query)
+
+------------------------------------------------------------
+Read: a good triage matches ask-always on EX with FEWER questions,
+and keeps N_break at or below fix-always.

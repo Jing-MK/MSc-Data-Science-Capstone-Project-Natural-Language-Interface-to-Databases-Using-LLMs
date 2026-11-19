@@ -1,0 +1,3 @@
+# Core dependencies for Multi-Agent HITL NL2SQL Correction System
+streamlit>=1.28.0
+pandas>=1.5.0

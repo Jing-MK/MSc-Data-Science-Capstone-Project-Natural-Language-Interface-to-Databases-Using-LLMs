@@ -1,0 +1,9 @@
+[
+  {
+    "db_id": "california_schools",
+    "question": "List the names of schools in Alameda county.",
+    "evidence": "",
+    "predicted_sql": "SELECT `School Name` FROM schools WHERE County = 'Alameda'",
+    "gold_sql": "SELECT School FROM schools WHERE County = 'Alameda'"
+  }
+]

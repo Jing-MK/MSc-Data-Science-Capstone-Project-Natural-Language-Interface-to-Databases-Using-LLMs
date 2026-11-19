@@ -1,0 +1,39 @@
+python3 -m pip install pandas langchain langchain-openai openai
+# ============================================================
+# Multi-Agent Interactive NL2SQL System
+# Python >= 3.10
+#
+# Install: pip install -r requirements.txt
+# ============================================================
+
+# ── Core LLM / API ──────────────────────────────────────────
+# OpenAI-compatible client (Qwen/DeepSeek/OpenAI all use same interface)
+openai>=1.30.0
+
+# LangChain (DIN-SQL baseline uses LLMChain)
+# Note: LLMChain is deprecated in >=0.3, keep at 0.2.x for now
+langchain>=0.2.16,<0.3.0
+langchain-openai>=0.1.23
+langchain-community>=0.2.16
+langchain-core>=0.2.38
+
+# ── Phase 2: Streamlit UI ───────────────────────────────────
+streamlit>=1.35.0
+
+# ── SQL Parsing (agent detection logic) ─────────────────────
+sqlparse>=0.5.0
+
+# ── Data ────────────────────────────────────────────────────
+pandas>=2.0.0
+numpy>=1.26.0
+openpyxl>=3.1.2          # read/write .xlsx error notebooks
+
+# ── Dev Utilities ────────────────────────────────────────────
+python-dotenv>=1.0.0     # API keys from .env file
+tqdm>=4.66.0             # progress bars during evaluation
+
+# ── Built-in (no install needed) ─────────────────────────────
+# sqlite3  - SQL execution
+# difflib  - fuzzy schema matching (SchemaAgent)
+# re       - SQL pattern detection
+# json, os, glob, typing - standard library

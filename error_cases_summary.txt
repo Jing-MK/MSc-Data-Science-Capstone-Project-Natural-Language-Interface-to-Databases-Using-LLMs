@@ -1,0 +1,52 @@
+============================================================
+错误案例汇总
+============================================================
+
+总错误数: 477
+涉及数据库: 11
+
+各数据库错误分布:
+  card_games: 75 个错误
+    - challenging: 3
+    - moderate: 24
+    - simple: 48
+  thrombosis_prediction: 74 个错误
+    - challenging: 12
+    - moderate: 42
+    - simple: 20
+  formula_1: 65 个错误
+    - challenging: 6
+    - moderate: 14
+    - simple: 45
+  codebase_community: 55 个错误
+    - challenging: 3
+    - moderate: 14
+    - simple: 38
+  toxicology: 47 个错误
+    - challenging: 16
+    - moderate: 12
+    - simple: 19
+  european_football_2: 38 个错误
+    - challenging: 5
+    - moderate: 17
+    - simple: 16
+  california_schools: 36 个错误
+    - challenging: 3
+    - moderate: 16
+    - simple: 17
+  financial: 28 个错误
+    - challenging: 3
+    - moderate: 15
+    - simple: 10
+  student_club: 27 个错误
+    - challenging: 2
+    - moderate: 14
+    - simple: 11
+  debit_card_specializing: 22 个错误
+    - challenging: 3
+    - moderate: 6
+    - simple: 13
+  superhero: 10 个错误
+    - challenging: 2
+    - moderate: 2
+    - simple: 6

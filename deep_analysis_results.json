@@ -1,0 +1,83 @@
+[
+  {
+    "qid": "0",
+    "question": "What is the highest eligible free rate for K-12 students in the schools in Alameda County?",
+    "gold_success": true,
+    "pred_success": true,
+    "gold_rows": 1,
+    "pred_rows": 1,
+    "error_analysis": {
+      "root_cause": "查询结果值不匹配",
+      "specific_issues": [
+        "计算结果不同: Gold=(1.0,), Pred=(100.0,)"
+      ],
+      "fix_suggestions": [
+        "检查算术运算和单位转换"
+      ]
+    }
+  },
+  {
+    "qid": "1",
+    "question": "Please list the lowest three eligible free rates for students aged 5-17 in continuation schools.",
+    "gold_success": true,
+    "pred_success": true,
+    "gold_rows": 3,
+    "pred_rows": 0,
+    "error_analysis": {
+      "root_cause": "查询条件过于严格导致无结果",
+      "specific_issues": [
+        "WHERE条件不同:",
+        "  Gold: `educational option type` = 'continuation school' and `free meal count (ages 5-17)` / `enrollment (ages 5-17)` is not null",
+        "  Pred: \"school type\" = 'continuation schools'"
+      ],
+      "fix_suggestions": [
+        "检查过滤条件中的值是否正确"
+      ]
+    }
+  },
+  {
+    "qid": "15",
+    "question": "Which active district has the highest average score in Reading?",
+    "gold_success": true,
+    "pred_success": true,
+    "gold_rows": 1,
+    "pred_rows": 1,
+    "error_analysis": {
+      "root_cause": "查询结果值不匹配",
+      "specific_issues": [],
+      "fix_suggestions": []
+    }
+  },
+  {
+    "qid": "16",
+    "question": "How many schools in merged Alameda have number of test takers less than 100?",
+    "gold_success": true,
+    "pred_success": true,
+    "gold_rows": 1,
+    "pred_rows": 1,
+    "error_analysis": {
+      "root_cause": "查询结果值不匹配",
+      "specific_issues": [],
+      "fix_suggestions": []
+    }
+  },
+  {
+    "qid": "22",
+    "question": "Which school in Contra Costa has the highest number of test takers?",
+    "gold_success": true,
+    "pred_success": true,
+    "gold_rows": 1,
+    "pred_rows": 0,
+    "error_analysis": {
+      "root_cause": "查询条件过于严格导致无结果",
+      "specific_issues": [
+        "WHERE条件不同:",
+        "  Gold: cname = 'contra costa' and sname is not null",
+        "  Pred: t1.county = 'contra costa'"
+      ],
+      "fix_suggestions": [
+        "检查过滤条件中的值是否正确"
+      ]
+    }
+  }
+]

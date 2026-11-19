@@ -1,0 +1,58 @@
+============================================================
+BIRD Dev Benchmark 评测结果
+模型: Qwen3-Coder-30B-A3B
+============================================================
+
+总题数: 1534
+正确数: 1117
+错误数: 417
+准确率: 72.82%
+
+按难度统计:
+------------------------------------------------------------
+  challenging    :   82/ 145 ( 56.55%)
+  moderate       :  310/ 464 ( 66.81%)
+  simple         :  725/ 925 ( 78.38%)
+
+错题前10个:
+------------------------------------------------------------
+
+1. ID=16, DB=california_schools, Difficulty=simple
+   问题: How many schools in merged Alameda have number of test takers less than 100?
+   错误: 结果不匹配
+
+2. ID=17, DB=california_schools, Difficulty=simple
+   问题: Rank schools by their average score in Writing where the score is greater than 499, showing their charter numbers.
+   错误: 结果不匹配
+
+3. ID=23, DB=california_schools, Difficulty=moderate
+   问题: List the names of schools with more than 30 difference in enrollements between K-12 and ages 5-17? Please also give the full street adress of the schools.
+   错误: 结果不匹配
+
+4. ID=25, DB=california_schools, Difficulty=moderate
+   问题: Name schools in Riverside which the average of average math score for SAT is grater than 400, what is the funding type of these schools?
+   错误: 结果不匹配
+
+5. ID=26, DB=california_schools, Difficulty=moderate
+   问题: State the names and full communication address of high schools in Monterey which has more than 800 free or reduced price meals for ages 15-17?
+   错误: 结果不匹配
+
+6. ID=27, DB=california_schools, Difficulty=moderate
+   问题: What is the average score in writing for the schools that were opened after 1991 or closed before 2000? List the school names along with the score. Also, list the communication number of the schools if there is any.
+   错误: 结果不匹配
+
+7. ID=28, DB=california_schools, Difficulty=challenging
+   问题: Consider the average difference between K-12 enrollment and 15-17 enrollment of schools that are locally funded, list the names and DOC type of schools which has a difference above this average.
+   错误: 结果不匹配
+
+8. ID=31, DB=california_schools, Difficulty=moderate
+   问题: What is the eligible free rate of the 10th and 11th schools with the highest enrolment for students in grades 1 through 12?
+   错误: 结果不匹配
+
+9. ID=32, DB=california_schools, Difficulty=moderate
+   问题: What is the eligible free or reduced price meal rate for the top 5 schools in grades 1-12 with the highest free or reduced price meal count of the schools with the ownership code 66?
+   错误: 结果不匹配
+
+10. ID=33, DB=california_schools, Difficulty=moderate
+   问题: If there are any, what are the websites address of the schools with a free meal count of 1,900-2,000 to students aged 5-17? Include the name of the school.
+   错误: 结果不匹配
