@@ -24,7 +24,7 @@ from langchain_core.prompts import (
 )
 
 # ── CONFIG ──────────────────────────────────────────────
-os.environ["OPENAI_API_KEY"] = "sk-ws-H.ILERDD.tEpj.MEUCIQDE2kvFxX5gd-uPvh6SqY7NhkbdQ5q6PwxYAyj6kIyDFAIgTdxq9O6SeTud3UZHI3mdNgXk83Ix13H6bB9GxTqOCgs"  
+os.environ["OPENAI_API_KEY"] = ""  
 
 CHAT=ChatOpenAI(
     openai_api_key=os.environ["OPENAI_API_KEY"],
