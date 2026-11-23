@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+title: >-
+  A Multi-Agent, Human-in-the-Loop Framework for Correcting
+  Natural-Language-to-SQL Errors at Run Time
+message: >-
+  If you use this software or build on it, please cite it using
+  the metadata below.
+type: software
+authors:
+  - given-names: Yijing
+    family-names: Wang
+    affiliation: >-
+      College of Computing and Data Science, Nanyang Technological
+      University
+abstract: >-
+  An interactive error-correction framework for natural-language-to-SQL.
+  Given the residual errors of a strong NL2SQL baseline, with no gold
+  query available at run time, agents organised by SQL decision point
+  enumerate candidate queries; the candidates are executed and clustered
+  by result; and a triage policy decides, for each error, whether to
+  repair it automatically on an objective signal, consult the user (who
+  chooses between result tables, never SQL), or abstain. The design
+  combines decision-point structural agents with error-type semantic
+  agents, and confines the LLM to proposing candidates and phrasing
+  questions.
+keywords:
+  - text-to-SQL
+  - NL2SQL
+  - human-in-the-loop
+  - multi-agent systems
+  - large language models
+  - BIRD benchmark
+  - error correction
+license: MIT
+version: 1.0.0
+date-released: '2026-11-22'

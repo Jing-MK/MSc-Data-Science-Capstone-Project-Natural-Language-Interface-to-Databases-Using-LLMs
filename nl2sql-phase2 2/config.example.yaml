@@ -1,0 +1,28 @@
+# ============================================================
+#  Example configuration.
+#  COPY this file to  config.local.yaml  and fill in your values.
+#  config.local.yaml is git-ignored and must NEVER be committed.
+# ============================================================
+
+# --- Qwen / DashScope (OpenAI-compatible endpoint) ---
+# Get your key from the Alibaba Cloud DashScope console.
+# You can also set the environment variable DASHSCOPE_API_KEY instead,
+# which takes precedence over this file.
+llm:
+  api_key: " "
+  model: "qwen3.7-plus"
+  enable_thinking: false                   # DIN-SQL reproduction used this setting
+  temperature: 0.0
+  timeout_seconds: 30
+
+# --- BIRD development databases ---
+# Point this at the folder that contains one sub-folder per database,
+# each holding <db_id>/<db_id>.sqlite  (the standard BIRD dev layout).
+bird:
+  db_root: "/path/to/bird/dev_databases"
+
+# --- Correction framework parameters (match the report) ---
+framework:
+  max_rounds: 4            # interaction budget (report Section 4.3)
+  use_llm_propose: true    # enable LLM candidate proposal for open-ended clauses
+  busy_timeout_ms: 5000    # SQLite busy timeout for execution

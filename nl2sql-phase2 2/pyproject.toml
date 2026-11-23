@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nl2sql-phase2"
+version = "1.0.0"
+description = "Multi-agent, human-in-the-loop error correction for NL2SQL at run time"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Wang Yijing" }]
+keywords = ["text-to-sql", "nl2sql", "human-in-the-loop", "llm", "bird"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "pyyaml>=6.0",
+    "openai>=1.30.0",
+]
+
+[project.optional-dependencies]
+# SQL parsing (the framework falls back to a built-in parser without it)
+parse = ["sqlglot>=25.0.0"]
+# Live-mode demo server
+server = ["flask>=3.0.0", "flask-cors>=4.0.0"]
+all = ["sqlglot>=25.0.0", "flask>=3.0.0", "flask-cors>=4.0.0"]
+
+[project.scripts]
+nl2sql-eval = "nl2sql.evaluation.run_eval:main"
+
+[tool.setuptools.packages.find]
+include = ["nl2sql*"]

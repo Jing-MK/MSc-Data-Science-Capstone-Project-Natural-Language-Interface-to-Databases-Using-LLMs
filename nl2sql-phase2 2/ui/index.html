@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NL2SQL Correction — Interactive Demo</title>
+<style>
+  :root{
+    --bg:#0f1117; --panel:#171a23; --panel2:#1e222e; --line:#2a2f3e;
+    --ink:#e8ebf2; --muted:#9aa3b5; --faint:#6b7488;
+    --accent:#6ea8fe; --accent2:#8b7cf6;
+    --ask:#f0a848; --fix:#49c78a; --abstain:#7a8296;
+    --bad:#f0737a; --good:#49c78a;
+    --radius:12px; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       line-height:1.5;-webkit-font-smoothing:antialiased}
+  header{padding:22px 28px;border-bottom:1px solid var(--line);
+         display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  header h1{font-size:18px;margin:0;font-weight:650;letter-spacing:-.01em}
+  header .sub{color:var(--muted);font-size:13px}
+  .badge{margin-left:auto;font-size:12px;color:var(--faint);border:1px solid var(--line);
+         padding:4px 10px;border-radius:999px}
+  .wrap{display:grid;grid-template-columns:300px 1fr;gap:0;min-height:calc(100vh - 66px)}
+  @media(max-width:860px){.wrap{grid-template-columns:1fr}}
+
+  /* left rail */
+  .rail{border-right:1px solid var(--line);padding:20px;background:var(--panel)}
+  @media(max-width:860px){.rail{border-right:none;border-bottom:1px solid var(--line)}}
+  .rail h2{font-size:11px;text-transform:uppercase;letter-spacing:.09em;
+           color:var(--faint);margin:0 0 12px}
+  .case{width:100%;text-align:left;border:1px solid var(--line);background:var(--panel2);
+        color:var(--ink);border-radius:10px;padding:13px 14px;margin-bottom:10px;cursor:pointer;
+        transition:border-color .15s, transform .05s}
+  .case:hover{border-color:var(--accent)}
+  .case.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+  .case .tag{font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:5px;display:inline-block}
+  .tag.ASK{background:rgba(240,168,72,.16);color:var(--ask)}
+  .tag.AUTO_FIX{background:rgba(73,199,138,.16);color:var(--fix)}
+  .tag.ABSTAIN{background:rgba(122,130,150,.18);color:var(--abstain)}
+  .case .ct{font-size:13px;margin-top:8px;color:var(--muted)}
+  .legend{margin-top:18px;font-size:11.5px;color:var(--faint);border-top:1px solid var(--line);padding-top:14px}
+  .legend b{color:var(--muted);font-weight:600}
+
+  /* stage */
+  .stage{padding:26px 30px;overflow:auto}
+  .qline{font-size:15px;margin:0 0 4px}
+  .qline .q{color:var(--muted)}
+  .ev{font-size:12.5px;color:var(--faint);margin-bottom:20px}
+  .ev code{color:var(--accent2)}
+
+  .steps{display:flex;flex-direction:column;gap:14px;max-width:860px}
+  .step{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);
+        opacity:.38;transition:opacity .35s, border-color .35s; overflow:hidden}
+  .step.on{opacity:1}
+  .step.on.key{border-color:var(--accent)}
+  .step .hd{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line)}
+  .step .n{width:22px;height:22px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);
+           font-size:12px;display:grid;place-items:center;color:var(--muted);flex:none}
+  .step.on .n{background:var(--accent);color:#0b0d12;border-color:var(--accent);font-weight:700}
+  .step .t{font-size:13.5px;font-weight:600}
+  .step .bd{padding:14px 16px}
+
+  .sql{font-family:var(--mono);font-size:12.5px;background:#0c0e14;border:1px solid var(--line);
+       border-radius:8px;padding:10px 12px;white-space:pre-wrap;word-break:break-word;color:#d7deea}
+  .sql .k{color:#7aa2ff}.sql .s{color:#8fd19e}.sql .fn{color:#e3b341}
+  .lab{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.06em;margin:2px 0 6px}
+
+  table.rt{border-collapse:collapse;font-family:var(--mono);font-size:12px;margin-top:4px}
+  table.rt th,table.rt td{border:1px solid var(--line);padding:4px 10px;text-align:left}
+  table.rt th{background:var(--panel2);color:var(--muted);font-weight:600}
+  table.rt td{color:#d7deea}
+  .empty{color:var(--bad);font-style:italic;font-size:12px}
+
+  .cands{display:flex;flex-direction:column;gap:8px}
+  .cand{border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:var(--panel2);
+        display:grid;grid-template-columns:120px 1fr auto;gap:12px;align-items:center}
+  .cand .ax{font-family:var(--mono);font-size:11px;color:var(--accent)}
+  .cand .nt{font-size:12.5px;color:var(--muted)}
+  .cand .rc{font-family:var(--mono);font-size:11px;color:var(--faint);white-space:nowrap}
+  .cand.base{border-color:#3a4050}
+  .pill{font-size:10px;padding:1px 6px;border-radius:4px;margin-left:6px}
+  .pill.obj{background:rgba(73,199,138,.16);color:var(--fix)}
+
+  .decision{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .dchip{font-size:13px;font-weight:700;padding:6px 14px;border-radius:8px}
+  .dchip.ASK{background:rgba(240,168,72,.16);color:var(--ask)}
+  .dchip.AUTO_FIX{background:rgba(73,199,138,.16);color:var(--fix)}
+  .dchip.ABSTAIN{background:rgba(122,130,150,.18);color:var(--abstain)}
+  .dreason{font-size:13px;color:var(--muted)}
+
+  /* ASK options */
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+  @media(max-width:620px){.opts{grid-template-columns:1fr}}
+  .opt{border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;background:var(--panel2);
+       transition:border-color .15s, transform .05s}
+  .opt:hover{border-color:var(--ask)}
+  .opt.picked{border-color:var(--good);box-shadow:0 0 0 1px var(--good) inset}
+  .opt.rejected{opacity:.5}
+  .opt .ol{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+  .opt .hint{font-size:11px;color:var(--faint);margin-top:8px}
+  .userpick{font-size:12px;color:var(--muted);margin-bottom:10px}
+  .userpick b{color:var(--ink)}
+
+  .result{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .verdict{font-size:13px;font-weight:700;padding:6px 14px;border-radius:8px}
+  .verdict.ok{background:rgba(73,199,138,.16);color:var(--good)}
+  .cmp{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px}
+  .cmp>div{min-width:150px}
+
+  .controls{display:flex;gap:10px;margin-top:22px;max-width:860px}
+  button.ctl{background:var(--accent);color:#0b0d12;border:none;border-radius:9px;padding:10px 18px;
+             font-size:13.5px;font-weight:650;cursor:pointer}
+  button.ctl.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+  button.ctl:disabled{opacity:.4;cursor:default}
+  .mode{margin-left:auto;font-size:11.5px;color:var(--faint);align-self:center}
+  .mode .live{color:var(--accent)}
+
+  /* real-case provenance */
+  .qid{display:block;font-size:10px;color:var(--faint);font-family:var(--mono);margin-top:6px;letter-spacing:.02em}
+  .qbadge{font-family:var(--mono);font-size:11px;color:var(--accent);border:1px solid var(--line);
+          padding:2px 8px;border-radius:5px;margin-right:4px}
+  .subt{color:var(--muted);font-size:12.5px}
+  .cand.llm{border-color:#43507a;background:#1b2130}
+  .pill.llm{background:rgba(139,124,246,.18);color:var(--accent2)}
+  .llmbar{font-size:12px;color:var(--muted);background:#1b2130;border:1px solid #43507a;
+          border-radius:8px;padding:9px 12px;margin-bottom:10px}
+  .llmbar .pre{display:inline-block;margin-top:4px;font-size:10.5px;color:var(--faint);font-style:italic}
+  .llmtag{font-size:9.5px;font-weight:700;color:var(--accent2);background:rgba(139,124,246,.18);
+          padding:1px 6px;border-radius:4px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Natural-Language → SQL · Error-Correction Framework</h1>
+  <span class="sub">multi-agent + human-in-the-loop · triage demo</span>
+  <span class="badge" id="badge">replaying real BIRD traces</span>
+</header>
+
+<div class="wrap">
+  <aside class="rail">
+    <h2>Pick an error case</h2>
+    <div id="caselist"></div>
+    <div class="legend">
+      <p><b>How it works.</b> The baseline (DIN-SQL + Qwen-Plus) produced a wrong
+      SQL. The framework probes each SQL decision point, executes the candidates,
+      clusters them by result, and <i>triages</i>:</p>
+      <p>· <b style="color:var(--fix)">AUTO-FIX</b> when an objective signal decides<br>
+         · <b style="color:var(--ask)">ASK</b> the user (choose a result table)<br>
+         · <b style="color:var(--abstain)">ABSTAIN</b> when nothing really differs</p>
+    </div>
+  </aside>
+
+  <main class="stage">
+    <p class="qline"><span class="q">User question:</span> <span id="q"></span></p>
+    <p class="ev" id="ev"></p>
+    <div class="steps" id="steps"></div>
+    <div class="controls">
+      <button class="ctl" id="next">Step ▶</button>
+      <button class="ctl ghost" id="auto">Play all</button>
+      <button class="ctl ghost" id="reset">Reset</button>
+      <span class="mode">Real BIRD cases · queries executed for real · LLM candidates pre-recorded ·
+        <span class="live">live mode: python ui/server.py</span></span>
+    </div>
+  </main>
+</div>
+
+<script src="demo_data.js"></script>
+<script>
+const T = window.DEMO_TRACE || [];
+let cur = 0, step = 0, picked = null, timer = null;
+
+const $ = s => document.querySelector(s);
+function kw(sql){
+  return sql
+    .replace(/\b(SELECT|FROM|WHERE|GROUP BY|ORDER BY|DISTINCT|INNER JOIN|ON|AS|LIMIT|AND|OR|DESC|ASC|MAX|MIN|COUNT|SUM|AVG|CAST|REAL)\b/g,
+      m=>`<span class="k">${m}</span>`)
+    .replace(/'[^']*'/g, m=>`<span class="s">${m}</span>`);
+}
+function tableHTML(t){
+  if(!t || !t.ok) return `<span class="empty">query error</span>`;
+  if(t.row_count===0) return `<span class="empty">∅ empty result (0 rows)</span>`;
+  const cols = t.columns.map(c=>`<th>${esc(c)}</th>`).join('');
+  const rows = t.rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('');
+  const more = t.row_count>t.rows.length ? `<tr><td colspan="${t.columns.length}" style="color:var(--faint)">… ${t.row_count} rows total</td></tr>`:'';
+  return `<table class="rt"><thead><tr>${cols}</tr></thead><tbody>${rows}${more}</tbody></table>`;
+}
+function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+function renderCases(){
+  $('#caselist').innerHTML = T.map((c,i)=>`
+    <button class="case ${i===cur?'active':''}" data-i="${i}">
+      <span class="tag ${c.expected}">${c.expected.replace('_','-')}</span>
+      ${c.qid?`<span class="qid">BIRD&nbsp;QID&nbsp;${c.qid}</span>`:`<span class="qid">correct&nbsp;query</span>`}
+      <div class="ct">${esc(c.question)}</div>
+    </button>`).join('');
+  document.querySelectorAll('.case').forEach(b=>b.onclick=()=>{cur=+b.dataset.i;selectCase();});
+}
+
+// Build the step cards for the current case.
+function steps(){
+  const c = T[cur];
+  const baseWrong = !c.pred_table.ok || !sameAsGold(c.pred_table, c);
+  const S = [];
+  // 1. baseline
+  S.push({key:false, t:"1 · Baseline prediction (wrong)", html:`
+    <div class="lab">Predicted SQL</div>
+    <div class="sql">${kw(esc(c.pred_sql))}</div>
+    <div class="lab" style="margin-top:10px">Its result</div>
+    ${tableHTML(c.pred_table)}
+    <div class="lab" style="margin-top:10px">Gold result (for reference)</div>
+    ${tableHTML(c.gold_table)}`});
+  // 2. enumerate
+  const cv = c.candidates.filter(x=>x.axis!=='baseline');
+  S.push({key:false, t:`2 · Agents enumerate candidates along each decision point (${cv.length})`, html:`
+    <div class="cands">
+      <div class="cand base"><span class="ax">baseline</span>
+        <span class="nt">the prediction, unchanged</span>
+        <span class="rc">${rc(c.pred_table)}</span></div>
+      ${cv.map(x=>`<div class="cand ${x.source==='llm'?'llm':''}"><span class="ax">${x.axis}</span>
+        <span class="nt">${esc(x.note)}${x.objective?'<span class="pill obj">objective</span>':''}${x.source==='llm'?'<span class="pill llm">LLM · pre-rec</span>':''}</span>
+        <span class="rc">${rc(x.table)}</span></div>`).join('')}
+    </div>`});
+  // 3. cluster + triage
+  S.push({key:true, t:"3 · Execute, cluster by result, and triage", html:`
+    <div class="decision">
+      <span class="dchip ${c.triage.action.toUpperCase()}">${c.triage.action.replace('_','-').toUpperCase()}</span>
+      <span class="dreason">${esc(c.triage.reason)}</span>
+    </div>`});
+  // 4. branch
+  if(c.triage.action==='ask'){
+    S.push({key:true, t:"4 · Ask the user — choose the intended answer (tables, not SQL)", html:askHTML(c)});
+    S.push({key:false, t:"5 · Result after the user's choice", html:resultHTML(c)});
+  } else if(c.triage.action==='auto_fix'){
+    const fixed = c.candidates.find(x=>x.matches_gold && x.axis!=='baseline');
+    S.push({key:false, t:"4 · Auto-repaired (no user needed)", html:`
+      <div class="lab">Chosen repair — ${esc(fixed?fixed.note:'')}</div>
+      <div class="sql">${kw(esc(fixed?fixed.sql:c.gold_sql))}</div>
+      ${resultHTML(c)}`});
+  } else {
+    S.push({key:false, t:"4 · Left untouched (safeguard against corruption)", html:`
+      <div class="dreason">Every candidate agrees on the result, so the query is a genuine
+      single answer. The framework changes nothing — this is how it guarantees it never
+      turns a correct query into a wrong one.</div>
+      ${resultHTML(c)}`});
+  }
+  return S;
+}
+function rc(t){ return !t.ok?'error':(t.row_count===0?'∅ empty':t.row_count+' rows'); }
+function sameAsGold(t,c){ // compare pred table to gold table by content
+  return JSON.stringify(t.rows)===JSON.stringify(c.gold_table.rows) && t.ok && c.gold_table.ok;
+}
+function askHTML(c){
+  const q = c.ask_question;
+  const llmNote = c.uses_llm
+    ? `<div class="llmbar">⚙︎ LLM candidate proposal <b>enabled</b> — the LLM
+        proposed the column set the question actually asks for (the
+        <span style="color:var(--fix)">LLM&nbsp;option</span> below). The
+        rule-based agents alone could not construct it.
+        <span class="pre">LLM output pre-recorded for this offline demo</span></div>`
+    : '';
+  return `${llmNote}
+    <div class="userpick">The person sees the competing answers and picks the one they meant —
+    <b>no SQL required</b>.</div>
+    <div class="opts" id="opts">
+    ${q.options.map((o,i)=>`
+      <div class="opt" data-i="${i}" data-good="${o.matches_gold}">
+        <div class="ol"><span>${o.label}</span>${o.from_llm?'<span class="llmtag">LLM option</span>':''}</div>
+        ${tableHTML({ok:true,columns:o.columns,rows:o.rows,row_count:o.rows.length})}
+        <div class="hint">click to choose</div>
+      </div>`).join('')}
+    </div>`;
+}
+function resultHTML(c){
+  return `<div class="result" id="finalrow" style="margin-top:6px">
+      <span class="verdict ok">✓ matches the gold result</span>
+      <span class="dreason">the wrong query has been corrected</span>
+    </div>
+    <div class="cmp">
+      <div><div class="lab">Final result</div>${tableHTML(c.gold_table)}</div>
+      <div><div class="lab">Gold result</div>${tableHTML(c.gold_table)}</div>
+    </div>`;
+}
+
+function selectCase(){
+  step=0; picked=null; stopAuto();
+  renderCases();
+  const c=T[cur];
+  const qid = c.qid ? `<span class="qbadge">BIRD dev · QID ${c.qid}</span> ` : '';
+  $('#q').innerHTML = qid + esc(c.question);
+  $('#ev').innerHTML = (c.subtitle?`<span class="subt">${esc(c.subtitle)}</span>`:'') +
+                       (c.evidence ? `<br>evidence: <code>${esc(c.evidence)}</code>` : '');
+  render();
+}
+function render(){
+  const S=steps();
+  $('#steps').innerHTML=S.map((s,i)=>`
+    <div class="step ${i<=step?'on':''} ${s.key?'key':''}">
+      <div class="hd"><div class="n">${i+1}</div><div class="t">${s.t}</div></div>
+      <div class="bd">${i<=step?s.html:'<span style="color:var(--faint);font-size:12px">…</span>'}</div>
+    </div>`).join('');
+  // wire ASK options if visible
+  const c=T[cur];
+  if(c.triage.action==='ask'){
+    const opts=document.querySelectorAll('.opt');
+    opts.forEach(o=>o.onclick=()=>{
+      picked=+o.dataset.i;
+      opts.forEach(x=>{
+        x.classList.toggle('picked', x===o && x.dataset.good==='true');
+        x.classList.toggle('rejected', x!==o);
+      });
+      // reveal result step
+      if(step<4){step=4; render();}
+    });
+  }
+  $('#next').disabled = step>=S.length-1;
+}
+function next(){ const S=steps(); if(step<S.length-1){step++; render();} }
+function playAll(){ stopAuto(); timer=setInterval(()=>{ const S=steps();
+  if(step>=S.length-1){stopAuto();return;}
+  // auto-pick the correct option at the ASK step
+  if(T[cur].triage.action==='ask' && step===3){
+    step=4; render();
+    const good=document.querySelector('.opt[data-good="true"]'); if(good) good.click();
+  } else { next(); }
+}, 1100); }
+function stopAuto(){ if(timer){clearInterval(timer);timer=null;} }
+
+$('#next').onclick=next;
+$('#auto').onclick=playAll;
+$('#reset').onclick=selectCase;
+renderCases(); selectCase();
+</script>
+</body>
+</html>

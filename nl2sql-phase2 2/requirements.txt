@@ -1,0 +1,13 @@
+# Core
+pyyaml>=6.0
+
+# LLM (OpenAI-compatible client works with DashScope qwen-plus)
+openai>=1.30.0
+
+# Optional: nicer SQL parsing (the framework falls back to a built-in
+# regex parser if sqlglot is not installed, so this is not required)
+sqlglot>=25.0.0
+
+# Web UI backend (only needed for the live demo server)
+flask>=3.0.0
+flask-cors>=4.0.0

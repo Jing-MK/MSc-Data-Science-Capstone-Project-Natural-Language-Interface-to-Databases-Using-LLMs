@@ -1,0 +1,34 @@
+[
+  {
+    "arm": "no_correction",
+    "N_fix": 0,
+    "N_break": 0,
+    "N_net": 0,
+    "questions": 0,
+    "Q_per_query": 0.0
+  },
+  {
+    "arm": "fix_always",
+    "N_fix": 23,
+    "N_break": 0,
+    "N_net": 23,
+    "questions": 0,
+    "Q_per_query": 0.0
+  },
+  {
+    "arm": "ask_always",
+    "N_fix": 34,
+    "N_break": 0,
+    "N_net": 34,
+    "questions": 253,
+    "Q_per_query": 0.53
+  },
+  {
+    "arm": "triage",
+    "N_fix": 34,
+    "N_break": 0,
+    "N_net": 34,
+    "questions": 237,
+    "Q_per_query": 0.5
+  }
+]

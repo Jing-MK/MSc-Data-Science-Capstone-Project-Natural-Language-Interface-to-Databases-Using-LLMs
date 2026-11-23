@@ -1,0 +1,523 @@
+[
+  {
+    "id": "autofix",
+    "qid": "86",
+    "title": "Objective signal → AUTO-FIX (no user needed)",
+    "subtitle": "Rule-based agents alone fix this: the predicate agent finds the real stored value, and the empty-vs-non-empty signal decides.",
+    "db_id": "california_schools",
+    "question": "What is the administrator's last name that oversees the school with Charter number 40? Indicate the district, the county where the school is situated, and the name of the school.",
+    "evidence": "",
+    "pred_sql": "SELECT AdmLName1, District, County, School FROM schools WHERE CharterNum = '40'",
+    "gold_sql": "SELECT AdmLName1, District, County, School FROM schools WHERE CharterNum = '0040'",
+    "expected": "AUTO_FIX",
+    "uses_llm": false,
+    "pred_table": {
+      "ok": true,
+      "columns": [
+        "AdmLName1",
+        "District",
+        "County",
+        "School"
+      ],
+      "rows": [],
+      "row_count": 0,
+      "error": ""
+    },
+    "gold_table": {
+      "ok": true,
+      "columns": [
+        "AdmLName1",
+        "District",
+        "County",
+        "School"
+      ],
+      "rows": [
+        [
+          "Santos",
+          "Oakland Unified",
+          "Alameda",
+          "Oakland Tech"
+        ]
+      ],
+      "row_count": 1,
+      "error": ""
+    },
+    "candidates": [
+      {
+        "axis": "baseline",
+        "source": "baseline",
+        "note": "the baseline prediction",
+        "sql": "SELECT AdmLName1, District, County, School FROM schools WHERE CharterNum = '40'",
+        "objective": false,
+        "pre_recorded": false,
+        "table": {
+          "ok": true,
+          "columns": [
+            "AdmLName1",
+            "District",
+            "County",
+            "School"
+          ],
+          "rows": [],
+          "row_count": 0,
+          "error": ""
+        },
+        "matches_gold": false
+      },
+      {
+        "axis": "projection",
+        "source": "enum",
+        "note": "project \"AdmFName1\" instead of \"AdmLName1\"",
+        "sql": "SELECT AdmFName1, District, County, School FROM schools WHERE CharterNum = '40'",
+        "objective": false,
+        "pre_recorded": false,
+        "table": {
+          "ok": true,
+          "columns": [
+            "AdmFName1",
+            "District",
+            "County",
+            "School"
+          ],
+          "rows": [],
+          "row_count": 0,
+          "error": ""
+        },
+        "matches_gold": false
+      },
+      {
+        "axis": "predicate",
+        "source": "enum",
+        "note": "filter value '0040' instead of '40'",
+        "sql": "SELECT AdmLName1, District, County, School FROM schools WHERE CharterNum = '0040'",
+        "objective": false,
+        "pre_recorded": false,
+        "table": {
+          "ok": true,
+          "columns": [
+            "AdmLName1",
+            "District",
+            "County",
+            "School"
+          ],
+          "rows": [
+            [
+              "Santos",
+              "Oakland Unified",
+              "Alameda",
+              "Oakland Tech"
+            ]
+          ],
+          "row_count": 1,
+          "error": ""
+        },
+        "matches_gold": true
+      },
+      {
+        "axis": "distinct",
+        "source": "enum",
+        "note": "add DISTINCT (remove duplicates)",
+        "sql": "SELECT DISTINCT AdmLName1, District, County, School FROM schools WHERE CharterNum = '40'",
+        "objective": false,
+        "pre_recorded": false,
+        "table": {
+          "ok": true,
+          "columns": [
+            "AdmLName1",
+            "District",
+            "County",
+            "School"
+          ],
+          "rows": [],
+          "row_count": 0,
+          "error": ""
+        },
+        "matches_gold": false
+      }
+    ],
+    "triage": {
+      "action": "auto_fix",
+      "reason": "Only one candidate returns a non-empty result; the empty ones are wrong.",
+      "axis": null
+    },
+    "ask_question": null
+  },
+  {
+    "id": "ask",
+    "qid": "63",
+    "title": "Intent-dependent divergence → ASK the user",
+    "subtitle": "The correct column set is only proposed once the LLM hook is enabled; the user then picks the intended answer table.",
+    "db_id": "california_schools",
+    "question": "In chartered schools with charter number 00D2, what are the names of all the administrators? Indicate their full names, the name of the school and the city.",
+    "evidence": "",
+    "pred_sql": "SELECT School, City, AdmFName1, AdmLName1, AdmFName2, AdmLName2, AdmFName3, AdmLName3 FROM schools WHERE Charter = 1 AND CharterNum = '00D2'",
+    "gold_sql": "SELECT AdmFName1, AdmLName1, School, City FROM schools WHERE Charter = 1 AND CharterNum = '00D2'",
+    "expected": "ASK",
+    "uses_llm": true,
+    "pred_table": {
+      "ok": true,
+      "columns": [
+        "School",
+        "City",
+        "AdmFName1",
+        "AdmLName1",
+        "AdmFName2",
+        "AdmLName2",
+        "AdmFName3",
+        "AdmLName3"
+      ],
+      "rows": [
+        [
+          "Berkeley Charter",
+          "Berkeley",
+          "John",
+          "Lee",
+          "Amy",
+          "Ng",
+          "",
+          ""
+        ],
+        [
+          "Bay Charter",
+          "Berkeley",
+          "Carlos",
+          "Diaz",
+          "",
+          "",
+          "",
+          ""
+        ]
+      ],
+      "row_count": 2,
+      "error": ""
+    },
+    "gold_table": {
+      "ok": true,
+      "columns": [
+        "AdmFName1",
+        "AdmLName1",
+        "School",
+        "City"
+      ],
+      "rows": [
+        [
+          "John",
+          "Lee",
+          "Berkeley Charter",
+          "Berkeley"
+        ],
+        [
+          "Carlos",
+          "Diaz",
+          "Bay Charter",
+          "Berkeley"
+        ]
+      ],
+      "row_count": 2,
+      "error": ""
+    },
+    "candidates": [
+      {
+        "axis": "baseline",
+        "source": "baseline",
+        "note": "the baseline prediction",
+        "sql": "SELECT School, City, AdmFName1, AdmLName1, AdmFName2, AdmLName2, AdmFName3, AdmLName3 FROM schools WHERE Charter = 1 AND CharterNum = '00D2'",
+        "objective": false,
+        "pre_recorded": false,
+        "table": {
+          "ok": true,
+          "columns": [
+            "School",
+            "City",
+            "AdmFName1",
+            "AdmLName1",
+            "AdmFName2",
+            "AdmLName2",
+            "AdmFName3",
+            "AdmLName3"
+          ],
+          "rows": [
+            [
+              "Berkeley Charter",
+              "Berkeley",
+              "John",
+              "Lee",
+              "Amy",
+              "Ng",
+              "",
+              ""
+            ],
+            [
+              "Bay Charter",
+              "Berkeley",
+              "Carlos",
+              "Diaz",
+              "",
+              "",
+              "",
+              ""
+            ]
+          ],
+          "row_count": 2,
+          "error": ""
+        },
+        "matches_gold": false
+      },
+      {
+        "axis": "distinct",
+        "source": "enum",
+        "note": "add DISTINCT (remove duplicates)",
+        "sql": "SELECT DISTINCT School, City, AdmFName1, AdmLName1, AdmFName2, AdmLName2, AdmFName3, AdmLName3 FROM schools WHERE Charter = 1 AND CharterNum = '00D2'",
+        "objective": false,
+        "pre_recorded": false,
+        "table": {
+          "ok": true,
+          "columns": [
+            "School",
+            "City",
+            "AdmFName1",
+            "AdmLName1",
+            "AdmFName2",
+            "AdmLName2",
+            "AdmFName3",
+            "AdmLName3"
+          ],
+          "rows": [
+            [
+              "Berkeley Charter",
+              "Berkeley",
+              "John",
+              "Lee",
+              "Amy",
+              "Ng",
+              "",
+              ""
+            ],
+            [
+              "Bay Charter",
+              "Berkeley",
+              "Carlos",
+              "Diaz",
+              "",
+              "",
+              "",
+              ""
+            ]
+          ],
+          "row_count": 2,
+          "error": ""
+        },
+        "matches_gold": false
+      },
+      {
+        "axis": "projection",
+        "source": "llm",
+        "note": "LLM-proposed column set: the four fields the question asks for (full name, school, city)",
+        "sql": "SELECT AdmFName1, AdmLName1, School, City FROM schools WHERE Charter = 1 AND CharterNum = '00D2'",
+        "objective": false,
+        "pre_recorded": true,
+        "table": {
+          "ok": true,
+          "columns": [
+            "AdmFName1",
+            "AdmLName1",
+            "School",
+            "City"
+          ],
+          "rows": [
+            [
+              "John",
+              "Lee",
+              "Berkeley Charter",
+              "Berkeley"
+            ],
+            [
+              "Carlos",
+              "Diaz",
+              "Bay Charter",
+              "Berkeley"
+            ]
+          ],
+          "row_count": 2,
+          "error": ""
+        },
+        "matches_gold": true
+      }
+    ],
+    "triage": {
+      "action": "ask",
+      "reason": "Divergence is intent-dependent; the user must decide.",
+      "axis": "distinct"
+    },
+    "ask_question": {
+      "prompt": "Which of these answers did you intend?",
+      "options": [
+        {
+          "label": "Option A",
+          "columns": [
+            "School",
+            "City",
+            "AdmFName1",
+            "AdmLName1",
+            "AdmFName2",
+            "AdmLName2",
+            "AdmFName3",
+            "AdmLName3"
+          ],
+          "rows": [
+            [
+              "Berkeley Charter",
+              "Berkeley",
+              "John",
+              "Lee",
+              "Amy",
+              "Ng",
+              "",
+              ""
+            ],
+            [
+              "Bay Charter",
+              "Berkeley",
+              "Carlos",
+              "Diaz",
+              "",
+              "",
+              "",
+              ""
+            ]
+          ],
+          "matches_gold": false,
+          "from_llm": false
+        },
+        {
+          "label": "Option B",
+          "columns": [
+            "AdmFName1",
+            "AdmLName1",
+            "School",
+            "City"
+          ],
+          "rows": [
+            [
+              "John",
+              "Lee",
+              "Berkeley Charter",
+              "Berkeley"
+            ],
+            [
+              "Carlos",
+              "Diaz",
+              "Bay Charter",
+              "Berkeley"
+            ]
+          ],
+          "matches_gold": true,
+          "from_llm": true
+        }
+      ]
+    }
+  },
+  {
+    "id": "abstain",
+    "qid": null,
+    "title": "No real alternative → ABSTAIN (never corrupt a correct query)",
+    "subtitle": "When every candidate agrees on the result, the framework changes nothing — its safeguard against breaking a correct query.",
+    "db_id": "california_schools",
+    "question": "List the names of schools in Fresno county.",
+    "evidence": "",
+    "pred_sql": "SELECT School FROM schools WHERE County = 'Fresno'",
+    "gold_sql": "SELECT School FROM schools WHERE County = 'Fresno'",
+    "expected": "ABSTAIN",
+    "uses_llm": false,
+    "pred_table": {
+      "ok": true,
+      "columns": [
+        "School"
+      ],
+      "rows": [
+        [
+          "Fresno High"
+        ],
+        [
+          "Edison High"
+        ]
+      ],
+      "row_count": 2,
+      "error": ""
+    },
+    "gold_table": {
+      "ok": true,
+      "columns": [
+        "School"
+      ],
+      "rows": [
+        [
+          "Fresno High"
+        ],
+        [
+          "Edison High"
+        ]
+      ],
+      "row_count": 2,
+      "error": ""
+    },
+    "candidates": [
+      {
+        "axis": "baseline",
+        "source": "baseline",
+        "note": "the baseline prediction",
+        "sql": "SELECT School FROM schools WHERE County = 'Fresno'",
+        "objective": false,
+        "pre_recorded": false,
+        "table": {
+          "ok": true,
+          "columns": [
+            "School"
+          ],
+          "rows": [
+            [
+              "Fresno High"
+            ],
+            [
+              "Edison High"
+            ]
+          ],
+          "row_count": 2,
+          "error": ""
+        },
+        "matches_gold": true
+      },
+      {
+        "axis": "distinct",
+        "source": "enum",
+        "note": "add DISTINCT (remove duplicates)",
+        "sql": "SELECT DISTINCT School FROM schools WHERE County = 'Fresno'",
+        "objective": false,
+        "pre_recorded": false,
+        "table": {
+          "ok": true,
+          "columns": [
+            "School"
+          ],
+          "rows": [
+            [
+              "Fresno High"
+            ],
+            [
+              "Edison High"
+            ]
+          ],
+          "row_count": 2,
+          "error": ""
+        },
+        "matches_gold": true
+      }
+    ],
+    "triage": {
+      "action": "abstain",
+      "reason": "All candidates agree on the result; nothing to change.",
+      "axis": null
+    },
+    "ask_question": null
+  }
+]
